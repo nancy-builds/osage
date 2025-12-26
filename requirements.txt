@@ -1,0 +1,9 @@
+Flask-CORS==4.0.0
+python-dotenv==1.0.0
+Flask
+Flask-SQLAlchemy
+Flask-Bcrypt
+Flask-SocketIO
+python-dotenv
+psycopg2-binary
+Flask-Login

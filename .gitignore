@@ -1,0 +1,21 @@
+# env
+flask-backend/.env
+!.env.example
+
+# Next.js
+frontend/.next/
+out/
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
