@@ -9,6 +9,7 @@ export interface MenuItem {
   ingredients?: string[]
   spicy?: number
   vegetarian?: boolean
+  image_url?: string
 }
 
 export interface CartItem extends MenuItem {

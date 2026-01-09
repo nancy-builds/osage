@@ -35,14 +35,13 @@ export default function FeedbackPage({ onBack }: FeedbackPageProps) {
           timestamp: new Date().toISOString(),
         }),
       })
-
       if (response.status === 401) {
         const data = await response.json()
         alert(data.message)
         router.push("/login")
         return
       }
-
+      
       setSubmitted(true)
       setTimeout(() => {
         onBack()
@@ -86,8 +85,7 @@ export default function FeedbackPage({ onBack }: FeedbackPageProps) {
               onMouseLeave={() => setHoveredRating(0)}
               className="transition-transform hover:scale-110"
             >
-              <Star
-                className={`w-12 h-12 ${
+              <Star className={`w-12 h-12 ${
                   (hoveredRating || rating) >= star ? "fill-primary text-primary" : "text-muted-foreground"
                 }`}
               />
@@ -115,8 +113,7 @@ export default function FeedbackPage({ onBack }: FeedbackPageProps) {
         </div>
 
         {/* Submit Button */}
-        <button
-          onClick={handleSubmitFeedback}
+        <button onClick={handleSubmitFeedback}
           disabled={loading}
           className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
         >
@@ -125,8 +122,7 @@ export default function FeedbackPage({ onBack }: FeedbackPageProps) {
         </button>
 
         {/* Back Button */}
-        <button
-          onClick={onBack}
+        <button onClick={onBack}
           className="w-full bg-background border border-border py-3 rounded-lg font-semibold text-foreground hover:bg-muted transition-colors"
         >
           Start New Order

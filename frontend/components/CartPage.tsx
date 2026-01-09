@@ -1,15 +1,17 @@
 "use client"
 
-import { Trash2, Minus, Plus } from "lucide-react"
+import { Trash2, Minus, Plus, UtensilsCrossed  } from "lucide-react"
 import type { CartItem } from "@/types"
 
 interface CartPageProps {
   cart: CartItem[]
   onUpdateQuantity: (itemId: string, quantity: number) => void
   onRemoveItem: (itemId: string) => void
+  onCheckout: () => void
+  loading: boolean
 }
 
-export default function CartPage({ cart, onUpdateQuantity, onRemoveItem }: CartPageProps) {
+export default function CartPage({ cart, onUpdateQuantity, onRemoveItem, onCheckout, loading }: CartPageProps) {
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const tax = total * 0.1
   const finalTotal = total + tax
@@ -80,7 +82,21 @@ export default function CartPage({ cart, onUpdateQuantity, onRemoveItem }: CartP
               <span>Total</span>
               <span className="text-primary">${finalTotal.toFixed(2)}</span>
             </div>
+            
+            {/* Submit Button */}
+            <div className="flex justify-between text-base font-bold pt-5">
+              <button 
+              onClick={onCheckout} 
+              disabled={loading}
+              className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <UtensilsCrossed className="w-5 h-5" />
+                {loading ? "Placing..." : "Place Order"}
+              </button>
+            </div>
           </div>
+
+
         </>
       )}
     </div>

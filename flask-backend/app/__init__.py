@@ -2,18 +2,17 @@ from flask import Flask
 
 from .config import Config
 from .extensions import db, migrate, bcrypt, socketio, login_manager
-
+from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
-
-    # 🔥 BẮT BUỘC: load config TRƯỚC
+    CORS(
+        app,
+        origins=["http://localhost:3000"],
+        supports_credentials=True
+    )
     app.config.from_object(Config)
 
-    # 🧪 DEBUG TẠM (để xác nhận)
-    # print("DB URI =", app.config.get("SQLALCHEMY_DATABASE_URI"))
-
-    # 🔥 SAU ĐÓ mới init extensions
     db.init_app(app)
     migrate.init_app(app, db)
 
@@ -21,7 +20,6 @@ def create_app():
     socketio.init_app(app)
     login_manager.init_app(app)
 
-    # 🔥 IMPORT MODELS (bắt buộc cho migrate)
     from . import models
 
     from .routes.auth import auth_bp

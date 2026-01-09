@@ -4,6 +4,7 @@ export async function apiPost<T>(url: string, data: any): Promise<T> {
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include", // ⭐ REQUIRED FOR Flask-Login
     body: JSON.stringify(data),
   })
 

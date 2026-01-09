@@ -1,32 +1,98 @@
-from flask import Blueprint, request, jsonify
-from ..schemas.auth import RegisterSchema, LoginSchema
-from ..services.auth import register_user, login_user
+from flask import request, jsonify, Blueprint
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import login_user
+from ..extensions import db, login_manager
+from ..models.user import User
+import uuid
 
 auth_bp = Blueprint("auth", __name__)
 
+@login_manager.user_loader
+def load_user(user_id):
+    try:
+        return User.query.get(uuid.UUID(user_id))
+    except Exception:
+        return None
+
+
 @auth_bp.post("/register")
 def register():
-    json_data = request.get_json()
-    if not json_data:
-        return jsonify({"message": "Invalid JSON"}), 400  # dùng jsonify luôn
-
-    schema = RegisterSchema()
-    schema.context["password"] = json_data.get("password")
-
     try:
-        data = schema.load(json_data)
-    except Exception as e:
-        return jsonify({"message": str(e)}), 400  # catch validation error
+        data = request.get_json()
+        if not data:
+            return jsonify({"message": "Invalid JSON"}), 400
 
-    result, status_code = register_user(data)
-    return jsonify(result), status_code  # luôn trả JSON
+        phone = data.get("phone")
+        password = data.get("password")
+        role = data.get("role")
+        full_name = data.get("full_name")
+
+        if not phone or not password or not role:
+            return jsonify({"message": "Missing required fields"}), 400
+
+        if role not in ["customer", "restaurant"]:
+            return jsonify({"message": "Invalid role"}), 400
+
+        if User.query.filter_by(phone=phone).first():
+            return jsonify({"message": "Phone already registered"}), 409
+
+        password_hash = generate_password_hash(password)
+
+        user = User(
+            phone=phone,
+            password_hash=password_hash,
+            role=role,
+            full_name=full_name
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+        return jsonify({
+            "message": "Registered successfully",
+            "user": {
+                "id": str(user.id),
+                "phone": user.phone,
+                "role": user.role,
+                "full_name": user.full_name
+            }
+        }), 201
+
+    except Exception as e:
+        # Always return JSON on error
+        return jsonify({"message": str(e)}), 500
+
 
 @auth_bp.post("/login")
 def login():
-    try:
-        data = LoginSchema().load(request.get_json())
-    except Exception as e:
-        return jsonify({"message": str(e)}), 400
+    data = request.get_json(silent=True)
 
-    result, status_code = login_user(data)
-    return jsonify(result), status_code  # luôn trả JSON
+    if not data:
+        return jsonify({"message": "Invalid JSON body"}), 400
+
+    phone = data.get("phone", "").strip()
+    password = data.get("password", "")
+
+    if not phone or not password:
+        return jsonify({
+            "message": "Phone and password are required"
+        }), 400
+
+    user = User.query.filter_by(phone=phone).first()
+
+    if not user or not check_password_hash(user.password_hash, password):
+        return jsonify({
+            "message": "Invalid phone or password"
+        }), 401
+
+    login_user(user, remember=True)
+
+    return jsonify({
+        "message": "Login successful",
+        "user": {
+            "id": str(user.id),
+            "phone": user.phone,
+            "role": user.role,
+            "full_name": user.full_name,
+        }
+    }), 200

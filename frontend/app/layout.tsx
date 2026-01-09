@@ -1,48 +1,104 @@
-import type React from "react"
-import type { Metadata, Viewport } from "next"
-import { Analytics } from "@vercel/analytics/next"
+"use client"
+
 import "./globals.css"
+import { Analytics } from "@vercel/analytics/next"
+import Footer from "@/components/Footer"
 import Navigation from "@/components/Navigation"
+import type { CartItem, MenuItem } from "@/types"
+import { ReactNode, useState, createContext } from "react"
+import { useRouter } from "next/navigation"
 
-
-export const metadata: Metadata = {
-  title: "Osage - Restaurant Ordering",
-  description: "Japanese restaurant ordering system for dining",
-  icons: {
-    icon: [
-      {
-        url: "/logo-light.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/logo-dark.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "logo.png",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-logo.png",
-  },
+interface RootLayoutProps {
+  children: ReactNode
 }
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F9F7F4" },
-    { media: "(prefers-color-scheme: dark)", color: "#1F1D1A" },
-  ],
+interface CartContextType {
+  cart: CartItem[]
+  loading: boolean
+  addToCart: (item: MenuItem) => void
+  updateQuantity: (itemId: string, quantity: number) => void
+  removeItem: (itemId: string) => void
+  checkout: () => Promise<void>
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export const CartContext = createContext<CartContextType | null>(null)
+
+export default function RootLayout({ children }: RootLayoutProps) {
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  
+  const [currentPage, setCurrentPage] =
+    useState<"menu" | "cart" | "payment" | "feedback">("menu")
+
+  const [cart, setCart] = useState<CartItem[]>([])
+
+  const handleNavigate = (page: typeof currentPage) => {
+    setCurrentPage(page)
+  }
+
+  const addToCart = (item: MenuItem) => {
+    setCart(prev => {
+      const exists = prev.find(c => c.id === item.id)
+      return exists
+        ? prev.map(c =>
+            c.id === item.id
+              ? { ...c, quantity: c.quantity + 1 }
+              : c
+          )
+        : [...prev, { ...item, quantity: 1 }]
+    })
+  }
+
+  const updateQuantity = (itemId: string, quantity: number) => {
+  setCart(prev =>
+    quantity <= 0
+      ? prev.filter(item => item.id !== itemId)
+      : prev.map(item =>
+          item.id === itemId ? { ...item, quantity } : item
+        )
+      )
+    }
+
+  const removeItem = (itemId: string) => {
+    setCart(prev => prev.filter(item => item.id !== itemId))
+  }
+
+  const checkout = async () => {
+  if (cart.length === 0) return
+
+  setLoading(true)
+  try {
+    const res = await fetch("http://localhost:5000/api/order", {
+      method: "POST",
+      credentials: "include", // 🔥 flask-login
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        items: cart.map(item => ({
+          product_id: item.id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      }),
+    })
+    if (res.status === 401) {
+      router.push("/login")
+      return
+    }
+    if (!res.ok) {
+      throw new Error("Checkout failed")
+    }
+
+    setCart([]) // ✅ clear cart
+    alert("Order placed successfully!")
+  } catch (err) {
+    console.error(err)
+    alert("Failed to place order")
+  } finally {
+    setLoading(false)
+  }
+}
   return (
     <html lang="en">
       <head>
@@ -50,11 +106,36 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@300;400;500;700&family=Parisienne&family=DM+Serif+Text&display=swap"
           rel="stylesheet"
         />
+        <link rel="icon" href="/logo.png" />
       </head>
-      <body className={`font-body antialiased`}>
-        {children}
-        <Analytics />
 
+      <body className="font-body antialiased">
+        {/* ✅ Provider PHẢI bọc children */}
+          <CartContext.Provider
+            value={{
+              cart,
+              loading,
+              addToCart,
+              updateQuantity,
+              removeItem,
+              checkout,
+            }}
+          >
+          {children}
+
+          <Navigation
+            currentPage={currentPage}
+            onNavigate={handleNavigate}
+            cartItemCount={cart.reduce(
+              (sum, item) => sum + item.quantity,
+              0
+            )}
+          />
+
+          <Footer />
+        </CartContext.Provider>
+
+        <Analytics />
       </body>
     </html>
   )

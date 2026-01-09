@@ -6,8 +6,6 @@ import CartPage from "@/components/CartPage"
 import PaymentPage from "@/components/PaymentPage"
 import FeedbackPage from "@/components/FeedbackPage"
 import Navigation from "@/components/Navigation"
-import RegisterPage from "@/components/RegisterForm"
-import LoginPage from "@/components/LoginForm"
 import type { MenuItem, CartItem } from "@/types"
 
 export default function Home() {

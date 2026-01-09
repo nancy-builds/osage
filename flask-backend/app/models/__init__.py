@@ -1,16 +1,15 @@
 from .user import User
-from .address import Address
 from .order import Order
-from .menu_item import MenuItem
+from .product import Product
 from .payment import Payment
-from .restaurant import Restaurant, Category
+from .restaurant import Restaurant
+from .category import Category
 from .feedback import Feedback
 
 __all__ = [
     "User",
-    "Address",
     "Order",
-    "MenuItem",
+    "Product",
     "Payment",
     "Restaurant",
     "Category",
