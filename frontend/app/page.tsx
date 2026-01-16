@@ -79,10 +79,6 @@ export default function Home() {
 
       <Navigation currentPage={currentPage}
         onNavigate={(page) => {
-          if (page === "payment" && cart.length === 0) {
-            alert("Your cart is empty!")
-            return
-          }
           setCurrentPage(page)
         }}
         cartItemCount={cart.length}

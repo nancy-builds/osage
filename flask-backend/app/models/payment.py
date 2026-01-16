@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from ..extensions import db
+from ..constants.order_status import OrderStatus
 
 class Payment(db.Model):
     __tablename__ = "payments"
@@ -12,7 +13,10 @@ class Payment(db.Model):
         db.ForeignKey("orders.id"),
         nullable=False
     )
+    
+    payment_reference = db.Column(db.String(50), unique=True, nullable=False)
+    amount = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
+    status = db.Column(db.String(20), default=OrderStatus.PENDING.value)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    paid_at = db.Column(db.DateTime, nullable=True)
 
-    method = db.Column(db.String(50))
-    status = db.Column(db.String(20))
-    paid_at = db.Column(db.DateTime)

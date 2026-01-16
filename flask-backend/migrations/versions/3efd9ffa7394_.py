@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 768a34b5626c
+Revision ID: 3efd9ffa7394
 Revises: 
-Create Date: 2026-01-08 21:31:07.648107
+Create Date: 2026-01-10 10:43:56.420758
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '768a34b5626c'
+revision = '3efd9ffa7394'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -53,8 +53,8 @@ def upgrade():
     op.create_table('orders',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
-    sa.Column('status', sa.String(length=20), nullable=True),
-    sa.Column('total', sa.Numeric(precision=10, scale=2), nullable=True),
+    sa.Column('status', sa.String(length=30), nullable=False),
+    sa.Column('total', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -87,11 +87,14 @@ def upgrade():
     op.create_table('payments',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('order_id', sa.UUID(), nullable=False),
-    sa.Column('method', sa.String(length=50), nullable=True),
+    sa.Column('payment_reference', sa.String(length=50), nullable=False),
+    sa.Column('amount', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('status', sa.String(length=20), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('paid_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('payment_reference')
     )
     # ### end Alembic commands ###
 

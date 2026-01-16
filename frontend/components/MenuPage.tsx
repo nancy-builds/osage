@@ -68,7 +68,7 @@ useEffect(() => {
   return (
     <div className="pb-24 max-w-lg mx-auto">
       
-      <div className="flex items-center gap-4 my-2 mx-4">
+      <div className="flex items-center gap-4 my-2 mx-9">
         <img src="/logo-no-background.png" alt="Osage" className="h-9 w-auto"/>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -77,11 +77,6 @@ useEffect(() => {
             className="w-full h-11 pl-10 pr-4 rounded-xl border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary transition"/>
         </div>
 
-        <button onClick={() => router.push("/account")}>
-          <User className=" w-5 h-5 text-muted-foreground transition-all
-              duration-200 ease-out hover:text-primary active:translate-y-[1px]"
-          />
-        </button>
       </div>
 
       <div className="sticky top-0 bg-card p-4">

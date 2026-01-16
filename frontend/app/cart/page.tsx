@@ -11,14 +11,13 @@ export default function Cart() {
     throw new Error("Cart must be used inside CartContext.Provider")
   }
   
-  const { cart, updateQuantity, removeItem, checkout, loading } = cartContext
+  const { cart, updateQuantity, removeItem, loading } = cartContext
 
   return (
     <CartPage
       cart={cart}
       onUpdateQuantity={updateQuantity}
       onRemoveItem={removeItem}
-      onCheckout={checkout}
       loading={loading}
     />
   )

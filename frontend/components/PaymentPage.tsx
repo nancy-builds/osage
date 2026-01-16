@@ -2,80 +2,85 @@
 
 import { useState } from "react"
 import { CreditCard, QrCode } from "lucide-react"
-import type { CartItem, Order } from "@/types"
+import { useRouter } from 'next/navigation'
+import { useEffect } from "react"
 
 interface PaymentPageProps {
-  cart: CartItem[]
-  onOrderComplete: (order: Order) => void
+  orderId: string
+  total: string
+  status: string
+  items: OrderItem[]
+}
+interface OrderItem {
+  id: string
+  name: string
+  price: number
+  quantity: number
 }
 
-export default function PaymentPage({ cart, onOrderComplete }: PaymentPageProps) {
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "qr" | null>(null)
+export default function PaymentPage({ orderId }: PaymentPageProps) {
+  const router = useRouter()
+  const [paymentMethod, setPaymentMethod] =
+    useState<"card" | "qr" | null>(null)
   const [loading, setLoading] = useState(false)
-  const [tableNumber, setTableNumber] = useState("")
+  const [total, setTotal] = useState<number | null>(null)
+  const [order, setOrder] = useState<PaymentPageProps | null>(null)
+  const taxRate = 0.1
+  const tax = total ? total * taxRate : 0
+  const finalTotal = total ? total + tax : 0
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const tax = total * 0.1
-  const finalTotal = total + tax
+  // 🔹 Fetch order total from backend
+  useEffect(() => {
+    if (!orderId) return
+
+    fetch(`http://localhost:5000/api/order/${orderId}`, {
+      credentials: "include",
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load order")
+        return res.json()
+      })
+      .then((data: PaymentPageProps) => {
+        setTotal(Number(data.total))
+        setOrder(data)
+      })
+      .catch((err) => {
+        console.error(err)
+        alert("Unable to load order")
+      })
+  }, [orderId])
+
 
   const handlePayment = async () => {
     if (!paymentMethod) {
       alert("Please select a payment method")
       return
     }
-    if (!tableNumber) {
-      alert("Please enter your table number")
-      return
-    }
 
+    if (paymentMethod === "card") {
+      alert(
+        "Card payment is not available yet. Please use QR payment to continue."
+        )
+        return
+      }
     setLoading(true)
 
     try {
-      // Send order to Flask backend
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          items: cart.map((item) => ({
-            id: item.id,
-            name: item.name,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-          totalPrice: finalTotal,
-          paymentMethod,
-          tableNumber,
-        }),
-      })
-
-      if (!response.ok) throw new Error("Payment failed")
-
-      const orderData = await response.json()
-
-      const order: Order = {
-        id: orderData.orderId || Date.now().toString(),
-        items: cart,
-        totalPrice: finalTotal,
-        timestamp: Date.now(),
-        status: "confirmed",
-        tableNumber,
-      }
-
-      onOrderComplete(order)
-    } catch (error) {
-      console.error("Payment error:", error)
+      router.push(`/payment/qr/${orderId}`)
+    } 
+    catch (err) {
+      console.error("Payment error:", err)
       alert("Payment failed. Please try again.")
-    } finally {
+    } 
+    finally {
       setLoading(false)
     }
   }
 
-  if (cart.length === 0) {
+  if (total === null) {
     return (
-      <div className="flex items-center justify-center h-screen max-w-lg mx-auto">
-        <p className="text-muted-foreground">Your cart is empty</p>
+      <div className="flex items-center justify-center h-screen">
+        Loading payment…
       </div>
     )
   }
@@ -88,23 +93,11 @@ export default function PaymentPage({ cart, onOrderComplete }: PaymentPageProps)
       </div>
 
       <div className="p-4 space-y-6">
-        {/* Table Number */}
-        <div>
-          <label className="block text-sm font-semibold text-foreground mb-2">Table Number</label>
-          <input
-            type="number"
-            min="1"
-            value={tableNumber}
-            onChange={(e) => setTableNumber(e.target.value)}
-            placeholder="Enter table number"
-            className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
 
         {/* Order Summary */}
         <div className="bg-background border border-border rounded-lg p-4 space-y-2">
           <h3 className="font-semibold text-foreground mb-3">Order Summary</h3>
-          {cart.map((item) => (
+          {order?.items?.map((item) => (
             <div key={item.id} className="flex justify-between text-sm">
               <span className="text-muted-foreground">
                 {item.name} x{item.quantity}

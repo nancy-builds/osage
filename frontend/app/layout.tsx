@@ -28,7 +28,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   const router = useRouter()
   
   const [currentPage, setCurrentPage] =
-    useState<"menu" | "cart" | "payment" | "feedback">("menu")
+    useState<"menu" | "cart" | "feedback" | "account">("menu")
 
   const [cart, setCart] = useState<CartItem[]>([])
 
@@ -107,6 +107,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
           rel="stylesheet"
         />
         <link rel="icon" href="/logo.png" />
+        <script src="https://cdn.lordicon.com/lordicon.js"></script>
+
       </head>
 
       <body className="font-body antialiased">

@@ -2,19 +2,60 @@
 
 import { Trash2, Minus, Plus, UtensilsCrossed  } from "lucide-react"
 import type { CartItem } from "@/types"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 interface CartPageProps {
   cart: CartItem[]
   onUpdateQuantity: (itemId: string, quantity: number) => void
   onRemoveItem: (itemId: string) => void
-  onCheckout: () => void
   loading: boolean
+  table_number: number
+
 }
 
-export default function CartPage({ cart, onUpdateQuantity, onRemoveItem, onCheckout, loading }: CartPageProps) {
+export default function CartPage({ cart, onUpdateQuantity, onRemoveItem, loading }: CartPageProps) {
+  const router = useRouter()
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const tax = total * 0.1
+  const [tableNumber, setTableNumber] = useState<number | null>(null)
+  
   const finalTotal = total + tax
+const onCheckout = async () => {
+  if (cart.length === 0) return
+
+  if (tableNumber === null) {
+    alert("Please enter your table number")
+    return
+  }
+
+  try {
+    const res = await fetch("http://localhost:5000/api/order", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        table_number: tableNumber,
+        items: cart.map((item) => ({
+          product_id: item.id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      }),
+    })
+
+    if (!res.ok) throw new Error("Failed to create order")
+
+    const data = await res.json()
+
+    router.push(`/payment/${data.order_id}`)
+  } catch (err) {
+    console.error("Checkout error:", err)
+    alert("Checkout failed")
+  }
+}
 
   return (
     <div className="pb-24 max-w-lg mx-auto">
@@ -25,6 +66,23 @@ export default function CartPage({ cart, onUpdateQuantity, onRemoveItem, onCheck
           {cart.length} item{cart.length !== 1 ? "s" : ""}
         </p>
       </div>
+
+        {/* Table Number */}
+        <div className="p-4 space-y-3">
+          <label className="block text-sm font-semibold text-foreground mb-2">Table Number</label>
+          <input
+            type="number"
+            min="1"
+            value={tableNumber ?? ""}
+            onChange={(e) =>
+              setTableNumber(
+                e.target.value === "" ? null : Number(e.target.value)
+              )
+            }
+            placeholder="Enter table number"
+            className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          />
+        </div>
 
       {cart.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 p-4">

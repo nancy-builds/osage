@@ -2,56 +2,57 @@
 
 import { useState } from "react"
 import { Star, Send } from "lucide-react"
-import { useRouter } from "next/navigation"
 
 interface FeedbackPageProps {
   onBack: () => void
+  onSubmit: (rating: number, comment: string) => Promise<void>
+  loading: boolean
+  submitted: boolean
+  orderPaid: boolean
+  checking: boolean
 }
 
-export default function FeedbackPage({ onBack }: FeedbackPageProps) {
+export default function FeedbackPage({
+  onBack,
+  onSubmit,
+  loading,
+  submitted,
+  orderPaid,
+  checking,
+}: FeedbackPageProps) {
   const [rating, setRating] = useState(0)
   const [hoveredRating, setHoveredRating] = useState(0)
   const [comment, setComment] = useState("")
-  const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
 
-  const handleSubmitFeedback = async () => {
-    if (rating === 0) {
-      alert("Please select a rating")
-      return
-    }
+  const ratingMeta = [
+    null,
+    { label: "Poor", image: "/ratings/poor.png" },
+    { label: "Fair", image: "/ratings/fair.png" },
+    { label: "Good", image: "/ratings/good.png" },
+    { label: "Very Good", image: "/ratings/very-good.png" },
+    { label: "Excellent", image: "/ratings/excellent.png" },
+  ]
 
-    setLoading(true)
-    try {
-      const response = await fetch("/api/feedback", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          rating,
-          comment,
-          timestamp: new Date().toISOString(),
-        }),
-      })
-      if (response.status === 401) {
-        const data = await response.json()
-        alert(data.message)
-        router.push("/login")
-        return
-      }
-      
-      setSubmitted(true)
-      setTimeout(() => {
-        onBack()
-      }, 2000)
-    } catch (error) {
-      console.error("Feedback error:", error)
-      alert("Failed to submit feedback. Please try again.")
-    } finally {
-      setLoading(false)
-    }
+  if (checking) {
+    return <p className="text-center mt-10">Loading...</p>
+  }
+
+  if (!orderPaid) {
+    return (
+      <div className="pb-24 max-w-lg mx-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-card border-b border-border p-4 z-10">
+          <h1 className="text-2xl font-bold text-foreground">Rate Your Experience</h1>
+        </div>
+
+        <div className="text-center mt-20">
+          <h2 className="text-lg font-semibold">Order not completed</h2>
+          <p className="text-muted-foreground">
+            You can leave feedback after payment
+          </p>
+        </div>
+      </div>
+    )
   }
 
   if (submitted) {
@@ -59,12 +60,24 @@ export default function FeedbackPage({ onBack }: FeedbackPageProps) {
       <div className="flex flex-col items-center justify-center h-screen max-w-lg mx-auto">
         <div className="text-center">
           <div className="text-4xl mb-4">✨</div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">Thank You!</h2>
-          <p className="text-muted-foreground">Your feedback has been recorded</p>
-          <p className="text-xs text-muted-foreground mt-4">Redirecting...</p>
+          <h2 className="text-2xl font-bold mb-2">Thank You!</h2>
+          <p className="text-muted-foreground">
+            Your feedback has been recorded
+          </p>
+          <p className="text-xs text-muted-foreground mt-4">
+            Redirecting...
+          </p>
         </div>
       </div>
     )
+  }
+
+  const handleSubmit = async () => {
+    if (rating === 0) {
+      alert("Please select a rating")
+      return
+    }
+    await onSubmit(rating, comment)
   }
 
   return (
@@ -74,9 +87,9 @@ export default function FeedbackPage({ onBack }: FeedbackPageProps) {
         <h1 className="text-2xl font-bold text-foreground">Rate Your Experience</h1>
       </div>
 
-      <div className="p-4 space-y-6">
+      <div className="p-3 space-y-6">
         {/* Rating Stars */}
-        <div className="flex justify-center gap-4 py-8">
+        <div className="flex justify-center gap-4 pt-7">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
@@ -94,11 +107,19 @@ export default function FeedbackPage({ onBack }: FeedbackPageProps) {
         </div>
 
         {/* Rating Text */}
-        {rating > 0 && (
-          <p className="text-center text-sm text-muted-foreground">
-            {["", "Poor", "Fair", "Good", "Very Good", "Excellent"][rating]}
-          </p>
+        {rating > 0 && ratingMeta[rating] && (
+          <div className="flex flex-col items-center">
+            <p className="text-center text-sm text-muted-foreground">
+              {ratingMeta[rating].label}
+            </p>
+            <img
+              src={ratingMeta[rating].image}
+              alt={ratingMeta[rating].label}
+              className="h-40 object-contain"
+            />
+          </div>
         )}
+
 
         {/* Comment Box */}
         <div>
@@ -113,20 +134,22 @@ export default function FeedbackPage({ onBack }: FeedbackPageProps) {
         </div>
 
         {/* Submit Button */}
-        <button onClick={handleSubmitFeedback}
-          disabled={loading}
-          className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-        >
-          <Send className="w-5 h-5" />
-          {loading ? "Submitting..." : "Submit Feedback"}
-        </button>
+        <div className="flex flex-col gap-2">
+          <button onClick={handleSubmit}
+            disabled={loading}
+            className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            <Send className="w-5 h-5" />
+            {loading ? "Submitting..." : "Submit Feedback"}
+          </button>
 
-        {/* Back Button */}
-        <button onClick={onBack}
-          className="w-full bg-background border border-border py-3 rounded-lg font-semibold text-foreground hover:bg-muted transition-colors"
-        >
-          Start New Order
-        </button>
+          {/* Back Button */}
+          <button onClick={onBack}
+            className="w-full bg-background border border-border py-3 rounded-lg font-semibold text-foreground hover:bg-muted transition-colors"
+          >
+            Start New Order
+          </button>
+      </div>
       </div>
     </div>
   )

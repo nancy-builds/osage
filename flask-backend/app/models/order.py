@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from ..extensions import db
+from ..constants.order_status import OrderStatus
 
 class Order(db.Model):
     __tablename__ = "orders"
@@ -13,9 +14,17 @@ class Order(db.Model):
         nullable=False
     )
 
-    status = db.Column(db.String(20), default="pending")
-    total = db.Column(db.Numeric(10, 2))
+    status = db.Column(
+        db.String(30),
+        nullable=False,
+        default=OrderStatus.PENDING.value
+    )
+    
+    total = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    table_number = db.Column(db.Integer, nullable=True)
+
+    feedback = db.relationship("Feedback", back_populates="order")
 
     items = db.relationship(
         "OrderItem",
@@ -43,3 +52,5 @@ class OrderItem(db.Model):
 
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Numeric(10, 2), nullable=False)
+    product = db.relationship("Product")
+
