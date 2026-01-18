@@ -14,6 +14,8 @@ socketio = SocketIO(cors_allowed_origins="*")
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 
+
+
 @login_manager.unauthorized_handler
 def unauthorized():
     return jsonify({

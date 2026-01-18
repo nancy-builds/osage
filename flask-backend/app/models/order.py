@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from ..extensions import db
 from ..constants.order_status import OrderStatus
+from sqlalchemy.dialects.postgresql import UUID
 
 class Order(db.Model):
     __tablename__ = "orders"

@@ -2,8 +2,20 @@ from flask import Blueprint, jsonify
 from ..models.product import Product
 from app.utils.permissions import role_required
 from app.constants.roles import Roles
+from flask_login import login_required, current_user
 
 menu_bp = Blueprint("menu", __name__)
+
+
+@menu_bp.route("/_debug_auth")
+def debug_auth():
+    return jsonify({
+        "is_authenticated": current_user.is_authenticated,
+        "user_id": current_user.get_id() if current_user.is_authenticated else None,
+        "role": getattr(current_user, "role", None),
+    })
+
+
 
 @menu_bp.route("/products", methods=["GET"])
 @role_required(Roles.CUSTOMER)

@@ -1,5 +1,6 @@
 import uuid
 from ..extensions import db
+from sqlalchemy.dialects.postgresql import UUID
 
 class Category(db.Model):
     __tablename__ = "categories"

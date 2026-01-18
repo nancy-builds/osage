@@ -6,15 +6,11 @@ def role_required(role):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            # 🔥 LET PREFLIGHT PASS
-            if request.method == "OPTIONS":
-                return f(*args, **kwargs)
-
             if not current_user.is_authenticated:
-                return jsonify({"error": "Login required"}), 401
+                return jsonify({"error": "Role required. Login required"}), 401
 
             if current_user.role != role:
-                return jsonify({"error": "Permission denied"}), 403
+                return jsonify({"error": "Role required. Permission denied"}), 403
 
             return f(*args, **kwargs)
         return wrapper

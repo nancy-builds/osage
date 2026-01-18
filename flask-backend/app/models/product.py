@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from ..extensions import db
+from sqlalchemy.dialects.postgresql import UUID
 
 class Product(db.Model):
     __tablename__ = "products"
