@@ -18,7 +18,7 @@ def debug_auth():
 
 
 @menu_bp.route("/products", methods=["GET"])
-@role_required(Roles.CUSTOMER)
+@login_required
 def get_all_products():
     try:
         products = Product.query.filter_by(is_available=True).all()

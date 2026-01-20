@@ -4,6 +4,9 @@ import { Trash2, Minus, Plus, UtensilsCrossed  } from "lucide-react"
 import type { CartItem } from "@/types"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { Button } from "@/components/ui/button"
+  import { useParams } from "next/navigation"
+
 
 interface CartPageProps {
   cart: CartItem[]
@@ -19,7 +22,10 @@ export default function CartPage({ cart, onUpdateQuantity, onRemoveItem, loading
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const tax = total * 0.1
   const [tableNumber, setTableNumber] = useState<number | null>(null)
-  
+
+const params = useParams()
+const restaurantId = params.restaurantId as string
+
   const finalTotal = total + tax
 const onCheckout = async () => {
   if (cart.length === 0) return
@@ -29,32 +35,42 @@ const onCheckout = async () => {
     return
   }
 
-  try {
-    const res = await fetch("http://localhost:5000/api/order", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        table_number: tableNumber,
-        items: cart.map((item) => ({
-          product_id: item.id,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-      }),
-    })
-
-    if (!res.ok) throw new Error("Failed to create order")
-
-    const data = await res.json()
-
-    router.push(`/payment/${data.order_id}`)
-  } catch (err) {
-    console.error("Checkout error:", err)
-    alert("Checkout failed")
+try {
+  if (!restaurantId) {
+    throw new Error("Restaurant not selected")
   }
+
+  const res = await fetch("http://localhost:5000/api/order", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      restaurant_id: restaurantId, // 🔥 REQUIRED
+      table_number: tableNumber,
+      items: cart.map((item) => ({
+        product_id: item.id,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.json()
+    console.error("Order error:", err)
+    throw new Error(err.error || "Failed to create order")
+  }
+
+  const data = await res.json()
+  router.push(`/payment/${data.order_id}`)
+
+} catch (err) {
+  console.error("Checkout error:", err)
+  alert("Checkout failed")
+}
+
 }
 
   return (
@@ -143,14 +159,14 @@ const onCheckout = async () => {
             
             {/* Submit Button */}
             <div className="flex justify-between text-base font-bold pt-5">
-              <button 
-              onClick={onCheckout} 
-              disabled={loading}
-              className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                <UtensilsCrossed className="w-5 h-5" />
-                {loading ? "Placing..." : "Place Order"}
-              </button>
+              <Button 
+                onClick={onCheckout} 
+                disabled={loading}
+                className="w-full py-5"
+                >
+                  <UtensilsCrossed className="w-5 h-5" />
+                  {loading ? "Placing..." : "Place Order"}
+              </Button>
             </div>
           </div>
 

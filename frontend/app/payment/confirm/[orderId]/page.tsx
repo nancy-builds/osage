@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { Clock, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button"
 
 
 interface Order {
@@ -233,14 +234,13 @@ return (
 
         {/* Action */}
         {order && order.status === "WAITING_PAYMENT" && (
-          <button
+          <Button
             onClick={handleConfirmPayment}
             disabled={loading}
-            className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold
-                       hover:bg-accent transition-colors disabled:opacity-50"
+            className="w-full py-5"
           >
             {loading ? "Confirming..." : "Confirm Payment"}
-          </button>
+          </Button>
         )}
 
         {/* Error */}

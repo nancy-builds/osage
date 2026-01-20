@@ -1,9 +1,13 @@
 from flask import request, jsonify, Blueprint
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user
+from flask_login import login_user, login_required, current_user
 from ..extensions import db, login_manager
 from ..models.user import User
 import uuid
+from datetime import datetime
+from ..constants.roles import Roles
+from ..utils.permissions import role_required
+
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -13,7 +17,6 @@ def load_user(user_id):
         return User.query.get(uuid.UUID(user_id))
     except Exception:
         return None
-
 
 @auth_bp.post("/register")
 def register():
@@ -46,6 +49,17 @@ def register():
         )
 
         db.session.add(user)
+        db.session.flush()  # 🔥 get user.id before commit
+
+        # ✅ SIMPLE restaurant creation
+        if role == "restaurant":
+            restaurant = Restaurant(
+                owner_id=user.id,
+                name=full_name or f"Restaurant {phone[-4:]}",
+                phone=phone
+            )
+            db.session.add(restaurant)
+
         db.session.commit()
 
         return jsonify({
@@ -59,9 +73,8 @@ def register():
         }), 201
 
     except Exception as e:
-        # Always return JSON on error
+        db.session.rollback()
         return jsonify({"message": str(e)}), 500
-
 
 @auth_bp.post("/login")
 def login():
@@ -96,3 +109,89 @@ def login():
             "full_name": user.full_name,
         }
     }), 200
+
+
+@auth_bp.get("/profile")
+@login_required
+def profile():
+    user = current_user     
+    return jsonify({
+        "id": str(user.id),
+        "phone": user.phone,
+        "role": user.role,
+        "full_name": user.full_name,
+        "avatar_url": user.avatar_url,
+        "membership_level": user.membership_level,
+        "loyalty_points": user.loyalty_points,
+        
+        "rewards": [
+            {
+                "id": str(reward.id),
+                "name": reward.name,
+                "required_points": reward.required_points,
+                "expires_at": reward.expires_at.isoformat() if reward.expires_at else None
+            }
+            for reward in user.rewards
+        ],
+
+        "created_at": user.created_at,
+
+    }), 200
+
+@auth_bp.get("/restaurant-profile")
+@login_required
+@role_required(Roles.RESTAURANT)
+def get_restaurant_by_owner(owner_id):
+    restaurant = Restaurant.query.filter_by(owner_id=owner_id).first_or_404()
+
+    return jsonify({
+        "id": str(restaurant.id),
+        "name": restaurant.name,
+        "address": restaurant.address,
+        "phone": restaurant.phone,
+        "owner_id": str(restaurant.owner_id),
+        "created_at": restaurant.created_at.isoformat()
+    }), 200
+
+
+@auth_bp.put("/profile-info")
+@login_required
+def update_profile():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"message": "Invalid JSON"}), 400
+
+    # Optional updates
+    if "fullName" in data:
+        current_user.full_name = data["fullName"]
+
+    if "email" in data:
+        current_user.email = data["email"]
+
+    if "phone" in data:
+        current_user.phone = data["phone"]
+
+    if "dateOfBirth" in data:
+        try:
+            current_user.date_of_birth = datetime.strptime(
+                data["dateOfBirth"], "%Y-%m-%d"
+            )
+        except ValueError:
+            return jsonify({"message": "Invalid date format"}), 400
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Profile updated successfully",
+        "user": {
+            "id": str(current_user.id),
+            "fullName": current_user.full_name,
+            "email": current_user.email,
+            "phone": current_user.phone,
+            "dateOfBirth": current_user.date_of_birth.isoformat() if current_user.date_of_birth else None,
+        }
+    }), 200
+
+
+    

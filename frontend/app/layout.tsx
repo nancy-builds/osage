@@ -8,6 +8,7 @@ import type { CartItem, MenuItem } from "@/types"
 import { ReactNode, useState, createContext } from "react"
 import { useRouter } from "next/navigation"
 
+
 interface RootLayoutProps {
   children: ReactNode
 }
@@ -111,7 +112,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
       </head>
 
-      <body className="font-body antialiased">
+      <body className="font-body antialiased bg-background">
         {/* ✅ Provider PHẢI bọc children */}
           <CartContext.Provider
             value={{

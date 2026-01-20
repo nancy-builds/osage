@@ -2,6 +2,10 @@
 
 import { Plus } from "lucide-react"
 import type { MenuItem } from "@/types"
+import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { useAuth } from '@/hooks/use-auth'
+
 
 interface MenuCardProps {
   item: MenuItem
@@ -9,6 +13,11 @@ interface MenuCardProps {
 }
 
 export default function MenuCard({ item, onAddToCart }: MenuCardProps) {
+  const { user, loading } = useAuth()
+  if (loading || !user) return null
+
+  const userRole = user.role.toUpperCase()
+
 return (
   <div className="bg-card rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow">
     {/* Image */}
@@ -58,14 +67,20 @@ return (
         <span className="font-bold text-primary">
           ${item.price.toFixed(2)}
         </span>
-        <button
-          onClick={() => onAddToCart(item)}
-          className="bg-primary text-primary-foreground p-1.5 rounded hover:bg-accent transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-        </button>
+
+        {userRole === "CUSTOMER" && (
+          <Button
+            onClick={() => onAddToCart(item)}
+            size="icon"
+            className="h-6 w-6"
+          >
+            <Plus />
+          </Button>
+
+        )}
+        
       </div>
     </div>
   </div>
-);
+)
 }

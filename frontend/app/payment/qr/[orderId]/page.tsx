@@ -4,12 +4,33 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import QRCode from "react-qr-code"
 import { MessageSquare } from "lucide-react"
+import { Button } from "@/components/ui/button"
+
 
 export default function QRPaymentPage() {
   const { orderId } = useParams()
   const router = useRouter()
   const [qrData, setQrData] = useState<any>(null)
   const [status, setStatus] = useState<string>("")
+  const [pointsEarned, setPointsEarned] = useState<number>(0)
+  const [totalLoyaltyPoints, setTotalLoyaltyPoints] = useState<number>(0)
+
+  useEffect(() => {
+    if (!orderId) return
+
+    fetch(`http://localhost:5000/api/order/${orderId}`, {
+      credentials: "include",
+    })
+      .then(res => res.json())
+      .then(data => {
+        setPointsEarned(data.points_earned ?? 0)
+        setTotalLoyaltyPoints(data.user?.loyalty_points ?? 0)
+        setStatus(data.status)
+      })
+      .catch(console.error)
+  }, [orderId])
+
+
   const WAITING_PAYMENT = () => {
     return (
       <div className="pb-24 max-w-lg mx-auto">
@@ -52,6 +73,17 @@ export default function QRPaymentPage() {
   }
 
   const PAID = () => {
+    useEffect(() => {
+      fetch("http://localhost:5000/api/auth/profile", {
+        credentials: "include",
+      })
+        .then(res => res.json())
+        .then(user => {
+          setTotalLoyaltyPoints(user.loyalty_points)
+        })
+    }, [])
+
+
     return (
       <div className="pb-24 max-w-lg mx-auto">
         {/* Header */}
@@ -64,6 +96,7 @@ export default function QRPaymentPage() {
         {/* Card */}
         <div className="flex items-center justify-center bg-gray-50 pt-20 px-10">
           <div className="bg-white rounded-xl shadow-sm max-w-md w-full p-8 text-center space-y-5">
+            
             {/* Success Icon */}
             <div className="flex justify-center">
               <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
@@ -90,26 +123,43 @@ export default function QRPaymentPage() {
             <p className="text-gray-600 text-sm">
               Your order is confirmed and is being prepared.
             </p>
-            
+
+            {/* Loyalty Points */}
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+              <p className="text-sm text-green-700 font-medium">
+                🎉 Loyalty Points Earned
+              </p>
+
+              <div className="text-3xl font-bold text-green-600 mt-1">
+                +{pointsEarned}
+              </div>
+
+              <p className="text-xs text-green-700 mt-1">
+                Total points: <span className="font-semibold">{totalLoyaltyPoints}</span>
+              </p>
+            </div>
             
             
             <div className="flex flex-col gap-2 mt-10">
-            {/* Optional Button */}
-            <button
-              onClick={() => router.push(`/feedback/${orderId}`)}
-              className="w-full bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-accent transition-colors disabled:opacity-50 flex items-center justify-center gap-2 py-3"
-            >
-              <MessageSquare className="h-5 w-5" />
-              Leave Feedback
-            </button>
-            
-            {/* Instructions */}
-            <div className="text-xs text-gray-500">
-              <p>Please take a moment to leave us your feedback for better experience
-                <span className="font-medium text-gray-800"> we truly appreciate it.</span>
-              </p>
+
+              {/* Optional Button */}
+              <Button
+                onClick={() => router.push(`/feedback/${orderId}`)}
+                className="w-full py-5"
+              >
+                <MessageSquare className="h-5 w-5" />
+                Leave Feedback
+              </Button>
+              
+              {/* Instructions */}
+              <div className="text-xs text-gray-500">
+                <p>Please take a moment to leave us your feedback for better experience
+                  <span className="font-medium text-gray-800"> we truly appreciate it.</span>
+                </p>
+              </div>
             </div>
-            </div>
+
+
           </div>
         </div>
       </div>

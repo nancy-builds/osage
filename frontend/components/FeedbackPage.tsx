@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Star, Send } from "lucide-react"
+import { Button } from "@/components/ui/button"
+
 
 interface FeedbackPageProps {
   onBack: () => void
@@ -135,20 +137,21 @@ export default function FeedbackPage({
 
         {/* Submit Button */}
         <div className="flex flex-col gap-2">
-          <button onClick={handleSubmit}
+          <Button onClick={handleSubmit}
             disabled={loading}
-            className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-5"
           >
             <Send className="w-5 h-5" />
             {loading ? "Submitting..." : "Submit Feedback"}
-          </button>
+          </Button>
 
           {/* Back Button */}
-          <button onClick={onBack}
-            className="w-full bg-background border border-border py-3 rounded-lg font-semibold text-foreground hover:bg-muted transition-colors"
+          <Button onClick={onBack}
+            className="w-full py-5"
+            variant="outline"
           >
             Start New Order
-          </button>
+          </Button>
       </div>
       </div>
     </div>

@@ -4,6 +4,8 @@ import { useState } from "react"
 import { CreditCard, QrCode } from "lucide-react"
 import { useRouter } from 'next/navigation'
 import { useEffect } from "react"
+import { Button } from "@/components/ui/button"
+
 
 interface PaymentPageProps {
   orderId: string
@@ -158,13 +160,14 @@ export default function PaymentPage({ orderId }: PaymentPageProps) {
         </div>
 
         {/* Payment Button */}
-        <button
+        <Button
           onClick={handlePayment}
           disabled={loading}
-          className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-accent transition-colors disabled:opacity-50"
+          className="w-full py-5"
+
         >
           {loading ? "Processing..." : "Complete Payment"}
-        </button>
+        </Button>
       </div>
     </div>
   )

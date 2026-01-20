@@ -5,6 +5,8 @@ import { apiPost } from "@/lib/api"
 import { CircleAlert } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { ro } from "date-fns/locale"
+import { Button } from "@/components/ui/button"
+
 
 export default function RegisterForm() {
   const [form, setForm] = useState({
@@ -119,13 +121,13 @@ export default function RegisterForm() {
         </div>
 
         {/* Submit */}
-        <button
+        <Button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-primary py-3 text-white font-semibold transition-all hover:bg-primary/60 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-5"
         >
           {loading ? "Creating account..." : "Register"}
-        </button>
+        </Button>
 
         {/* Footer */}
         <p className="text-center text-sm text-gray-500">

@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { apiPost } from "@/lib/api"
+import { Button } from "@/components/ui/button"
+
 
 export default function LoginForm() {
   const router = useRouter()
@@ -80,13 +82,13 @@ export default function LoginForm() {
         </div>
 
         {/* Submit */}
-        <button
+        <Button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-primary py-3 text-white font-semibold transition-all hover:bg-primary/60 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-5"
         >
           {loading ? "Signing in..." : "Login"}
-        </button>
+        </Button>
 
         {/* Footer */}
         <p className="text-center text-sm text-gray-500">

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f4e4f33268c2
+Revision ID: af4b523c7239
 Revises: 
-Create Date: 2026-01-18 18:31:13.274287
+Create Date: 2026-01-20 15:37:05.255846
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f4e4f33268c2'
+revision = 'af4b523c7239'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,35 +24,32 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )
-    op.create_table('restaurants',
+    op.create_table('rewards',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('description', sa.Text(), nullable=False),
+    sa.Column('required_points', sa.Integer(), nullable=False),
+    sa.Column('expires_at', sa.DateTime(), nullable=True),
+    sa.Column('is_active', sa.Boolean(), nullable=False),
+    sa.Column('image_url', sa.String(length=255), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('users',
     sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('phone', sa.String(length=20), nullable=False),
     sa.Column('password_hash', sa.Text(), nullable=False),
     sa.Column('role', sa.String(length=20), nullable=False),
+    sa.Column('date_of_birth', sa.Date(), nullable=True),
     sa.Column('full_name', sa.String(length=100), nullable=True),
     sa.Column('avatar_url', sa.Text(), nullable=True),
     sa.Column('membership_level', sa.String(length=20), nullable=False),
     sa.Column('loyalty_points', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email'),
     sa.UniqueConstraint('phone')
-    )
-    op.create_table('orders',
-    sa.Column('id', sa.UUID(), nullable=False),
-    sa.Column('user_id', sa.UUID(), nullable=False),
-    sa.Column('status', sa.String(length=30), nullable=False),
-    sa.Column('total', sa.Numeric(precision=10, scale=2), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.Column('table_number', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('products',
     sa.Column('id', sa.UUID(), nullable=False),
@@ -67,6 +64,38 @@ def upgrade():
     sa.Column('is_available', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['category_id'], ['categories.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('restaurants',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('owner_id', sa.UUID(), nullable=False),
+    sa.Column('name', sa.String(length=100), nullable=False),
+    sa.Column('address', sa.Text(), nullable=True),
+    sa.Column('phone', sa.String(length=20), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('owner_id')
+    )
+    op.create_table('user_rewards',
+    sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.Column('reward_id', sa.UUID(), nullable=False),
+    sa.Column('redeemed_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['reward_id'], ['rewards.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('user_id', 'reward_id')
+    )
+    op.create_table('orders',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.Column('restaurant_id', sa.UUID(), nullable=False),
+    sa.Column('status', sa.String(length=30), nullable=False),
+    sa.Column('total', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('table_number', sa.Integer(), nullable=True),
+    sa.Column('points_earned', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['restaurant_id'], ['restaurants.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('feedbacks',
@@ -111,9 +140,11 @@ def downgrade():
     op.drop_table('payments')
     op.drop_table('order_items')
     op.drop_table('feedbacks')
-    op.drop_table('products')
     op.drop_table('orders')
-    op.drop_table('users')
+    op.drop_table('user_rewards')
     op.drop_table('restaurants')
+    op.drop_table('products')
+    op.drop_table('users')
+    op.drop_table('rewards')
     op.drop_table('categories')
     # ### end Alembic commands ###

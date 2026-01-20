@@ -42,6 +42,36 @@
   --title-font-family: "DM Serif Text", serif;
 }
 
+.dark {
+  /* Base */
+  --background: oklch(0.15 0 0);
+  --foreground: oklch(0.95 0 0);
+
+  /* Surfaces */
+  --card: oklch(0.2 0 0);
+  --card-foreground: oklch(0.95 0 0);
+
+  --popover: oklch(0.2 0 0);
+  --popover-foreground: oklch(0.95 0 0);
+
+  /* Brand */
+  --primary: oklch(0.6 0.22 25);
+  --primary-foreground: oklch(0.98 0 0);
+
+  --secondary: oklch(0.25 0 0);
+  --secondary-foreground: oklch(0.9 0 0);
+
+  /* UI quiet */
+  --muted: oklch(0.3 0 0);
+  --muted-foreground: oklch(0.65 0 0);
+
+  /* highlight */
+  --accent: oklch(0.6 0.24 25);
+  --accent-foreground: oklch(0.98 0 0);
+
+  --border: oklch(0.35 0 0);
+}
+
 
 /* Font utility classes */
 .font-japanese {

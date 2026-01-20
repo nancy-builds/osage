@@ -26,13 +26,13 @@ def create_app():
     from .routes.order import order_bp
     from .routes.menu import menu_bp
     from .routes.feedback import feedback_bp
-    from .routes.kitchen import kitchen_bp
+    from .routes.reward import reward_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(menu_bp, url_prefix="/api/menu")
     app.register_blueprint(order_bp, url_prefix="/api/order")
     app.register_blueprint(feedback_bp, url_prefix="/api/feedback")
-    app.register_blueprint(kitchen_bp, url_prefix="/api/kitchen")
+    app.register_blueprint(reward_bp, url_prefix="/api/reward")
 
     return app
 

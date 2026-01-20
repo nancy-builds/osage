@@ -15,6 +15,12 @@ class Order(db.Model):
         nullable=False
     )
 
+    restaurant_id = db.Column(
+        db.UUID(as_uuid=True),
+        db.ForeignKey("restaurants.id"),
+        nullable=False
+    )
+
     status = db.Column(
         db.String(30),
         nullable=False,
@@ -26,6 +32,8 @@ class Order(db.Model):
     table_number = db.Column(db.Integer, nullable=True)
 
     feedback = db.relationship("Feedback", back_populates="order")
+    points_earned = db.Column(db.Integer, default=0)
+
 
     items = db.relationship(
         "OrderItem",

@@ -14,39 +14,39 @@ export default function MenuPage({ onAddToCart }: MenuPageProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [items, setItems] = useState<MenuItem[]>([])
-  const router = useRouter()
+  
 
-useEffect(() => {
-  fetch("http://localhost:5000/api/menu/products", {
-    credentials: "include",
-  })
-    .then(async (res) => {
-      if (!res.ok) {
-        const text = await res.text()
-        throw new Error(`HTTP ${res.status}: ${text}`)
-      }
-      return res.json()
+  useEffect(() => {
+    fetch("http://localhost:5000/api/menu/products", {
+      credentials: "include",
     })
-    .then((data) => {
-      if (!Array.isArray(data)) {
-        console.error("Menu API did not return an array:", data)
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text()
+          throw new Error(`HTTP ${res.status}: ${text}`)
+        }
+        return res.json()
+      })
+      .then((data) => {
+        if (!Array.isArray(data)) {
+          console.error("Menu API did not return an array:", data)
+          setItems([])
+          return
+        }
+
+        // 🔑 normalize backend → frontend shape
+        const normalized: MenuItem[] = data.map((p) => ({
+          ...p,
+          image: p.image_url, // 👈 CRITICAL FIX
+        }))
+
+        setItems(normalized)
+      })
+      .catch((err) => {
+        console.error("Menu fetch error:", err)
         setItems([])
-        return
-      }
-
-      // 🔑 normalize backend → frontend shape
-      const normalized: MenuItem[] = data.map((p) => ({
-        ...p,
-        image: p.image_url, // 👈 CRITICAL FIX
-      }))
-
-      setItems(normalized)
-    })
-    .catch((err) => {
-      console.error("Menu fetch error:", err)
-      setItems([])
-    })
-}, [])
+      })
+  }, [])
 
 
   const categories = Array.from(
@@ -68,7 +68,7 @@ useEffect(() => {
   return (
     <div className="pb-24 max-w-lg mx-auto">
       
-      <div className="flex items-center gap-4 my-2 mx-9">
+      <div className="flex items-center gap-4 my-3 mx-9">
         <img src="/logo-no-background.png" alt="Osage" className="h-9 w-auto"/>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -79,7 +79,7 @@ useEffect(() => {
 
       </div>
 
-      <div className="sticky top-0 bg-card p-4">
+      <div className="sticky top-0 bg-card py-2 px-5">
         {/* Categories */}
         <div className="flex gap-2 overflow-x-auto">
           <button
