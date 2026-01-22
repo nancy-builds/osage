@@ -1,21 +1,21 @@
 from flask import Flask
-
 from .config import Config
 from .extensions import db, migrate, bcrypt, socketio, login_manager
 from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
+
     CORS(
         app,
-        origins=["http://localhost:3000"],
+        origins=["http://localhost:3000"],  # we’ll update this later
         supports_credentials=True
     )
+
     app.config.from_object(Config)
 
     db.init_app(app)
     migrate.init_app(app, db)
-
     bcrypt.init_app(app)
     socketio.init_app(app, cors_allowed_origins="*")
     login_manager.init_app(app)
@@ -35,4 +35,3 @@ def create_app():
     app.register_blueprint(reward_bp, url_prefix="/api/reward")
 
     return app
-
