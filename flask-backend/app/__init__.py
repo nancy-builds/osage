@@ -17,7 +17,7 @@ def create_app():
     migrate.init_app(app, db)
 
     bcrypt.init_app(app)
-    socketio.init_app(app)
+    socketio.init_app(app, cors_allowed_origins="*")
     login_manager.init_app(app)
 
     from . import models
