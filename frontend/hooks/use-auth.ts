@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react"
+import { apiFetch } from "@/lib/api"
+import { API_BASE_URL, API_TIMEOUT } from "@/constants/api"
 
 type User = {
   id: string
@@ -11,7 +13,7 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/auth/profile", {
+    fetch(`${API_BASE_URL}/auth/profile`, {
       credentials: "include", // IMPORTANT
     })
       .then(res => res.ok ? res.json() : null)

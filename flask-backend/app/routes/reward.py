@@ -8,7 +8,6 @@ from ..extensions import db
 
 reward_bp = Blueprint("reward", __name__)
 
-
 @reward_bp.route("", methods=["GET"])
 @login_required
 def get_all_rewards():
@@ -58,3 +57,4 @@ def redeem_reward(reward_id):
         "remaining_points": user.loyalty_points,
         "reward_id": str(reward.id)
     }), 200
+

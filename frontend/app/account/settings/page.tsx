@@ -1,57 +1,26 @@
 "use client"
 
 import Link from "next/link"
-import { SectionHeader } from "@/components/account/section-header"
-import { useState, useEffect } from "react"
 import { ChevronLeft, Sun, Moon, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectTrigger, SelectValue, SelectItem, SelectContent } from "@/components/ui/select"
+import { AccountPageHeader } from "@/components/layout/AccountPageHeader"
+import { useSettings } from "@/app/providers/SettingsProvider"
 
 export default function SettingsPage() {
-  const [theme, setTheme] = useState<"light" | "dark">("light")
-  const [language, setLanguage] = useState("en")
-  
-  const handleSave = () => {
-    const settings = {
-      theme,
-      language,
-    }
-
-    localStorage.setItem("settings", JSON.stringify(settings))
-    alert("Settings saved successfully!")
-  }
-  useEffect(() => {
-    const saved = localStorage.getItem("settings")
-    if (!saved) return
-
-    const parsed = JSON.parse(saved)
-
-    if (parsed.theme) setTheme(parsed.theme)
-    if (parsed.language) setLanguage(parsed.language)
-  }, [])
-
-
-  useEffect(() => {
-  const root = document.documentElement
-
-  if (theme === "dark") {
-    root.classList.add("dark")
-  } else {
-    root.classList.remove("dark")
-  }
-}, [theme])
-
+  const {
+    theme,
+    setTheme,
+    language,
+    setLanguage,
+    saveSettings,
+  } = useSettings()
 
 
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="flex items-center gap-4 px-6 py-4 border-b border-border">
-        <Link href="/account" className="text-accent hover:opacity-80">
-          <ChevronLeft size={24} />
-        </Link>
-        <h1 className="text-xl font-bold text-foreground">Settings</h1>
-      </div>
+      <AccountPageHeader link="/account" title="Settings" description="Customize and update your preferences"/>
 
       <div className="max-w-2xl mx-auto p-6 space-y-6">
 
@@ -104,7 +73,10 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <Select value={language} onValueChange={setLanguage}>
+              <Select 
+                value={language} 
+                onValueChange={setLanguage}
+              >
                 <SelectTrigger className="px-5 py-2">
                   <SelectValue placeholder="Select language" />
                 </SelectTrigger>
@@ -122,7 +94,7 @@ export default function SettingsPage() {
 
 
         <Button
-          onClick={handleSave}
+          onClick={saveSettings}
           className="w-full py-5"
           >
           Save Changes

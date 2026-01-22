@@ -6,19 +6,7 @@ from flask_login import login_required, current_user
 
 menu_bp = Blueprint("menu", __name__)
 
-
-@menu_bp.route("/_debug_auth")
-def debug_auth():
-    return jsonify({
-        "is_authenticated": current_user.is_authenticated,
-        "user_id": current_user.get_id() if current_user.is_authenticated else None,
-        "role": getattr(current_user, "role", None),
-    })
-
-
-
 @menu_bp.route("/products", methods=["GET"])
-@login_required
 def get_all_products():
     try:
         products = Product.query.filter_by(is_available=True).all()

@@ -19,6 +19,7 @@ type NavItem = {
 export default function Navigation({ cartItemCount }: NavigationProps) {
   const router = useRouter()
   const pathname = usePathname() // current URL path
+  
   const params = useParams()
   const orderId = params?.orderId as string | undefined
   
@@ -58,16 +59,7 @@ export default function Navigation({ cartItemCount }: NavigationProps) {
       id: "orders",
       label: "Orders",
       icon: ClipboardList,
-      route: "restaurant//orders",
-    },
-    {
-      id: "payment",
-      label: "Payment",
-      icon: CreditCard,
-      route: (orderId?: string) =>
-        orderId
-          ? `/payment/confirm/${orderId}`
-          : "/payment/confirm",
+      route: "/restaurant/orders",
     },
     {
       id: "account",

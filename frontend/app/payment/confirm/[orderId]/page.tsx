@@ -4,7 +4,9 @@ import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { Clock, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button"
-
+import { formatTime } from '@/hooks/format-time'
+import { API_BASE_URL, API_TIMEOUT } from "@/constants/api"
+import { formatPriceVND } from "@/hooks/format-price";
 
 interface Order {
   order_id: string
@@ -42,7 +44,7 @@ useEffect(() => {
       console.log("Fetching order:", orderId)
 
       const res = await fetch(
-        `http://localhost:5000/api/order/${orderId}`,
+        `${API_BASE_URL}/order/${orderId}`,
         { credentials: "include" }
       )
 
@@ -76,7 +78,7 @@ useEffect(() => {
       console.log("Fetching order items:", orderId)
 
       const res = await fetch(
-        `http://localhost:5000/api/order/${orderId}/items`,
+        `${API_BASE_URL}/order/${orderId}/items`,
         { credentials: "include" }
       )
 
@@ -108,7 +110,7 @@ useEffect(() => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/order/payment/confirm/${orderId}`,
+        `${API_BASE_URL}/order/payment/confirm/${orderId}`,
         {
           method: "POST",
           credentials: "include",
@@ -133,7 +135,25 @@ useEffect(() => {
     }
   }
 
-  if (!order) return <p>Loading order...</p>
+  if (!order) {
+    return(
+          <div className="min-h-screen flex items-center justify-center bg-background px-6">
+      <div className="flex flex-col items-center text-center space-y-4">
+        {/* Spinner */}
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
+
+        {/* Text */}
+        <h2 className="text-base font-semibold text-foreground">
+          Loading order
+        </h2>
+
+        <p className="text-sm text-muted-foreground max-w-xs">
+          Please wait while we retrieve your order details.
+        </p>
+      </div>
+    </div>
+    )
+  }
 
 return (
   <div className="pb-28 max-w-lg mx-auto bg-gray-50 min-h-screen">
@@ -178,15 +198,7 @@ return (
           <div className="flex justify-between text-xs text-gray-500">
             <div>
               <p>Table: {order.table_number ?? "-"}</p>
-              <p>
-                Created: {new Date(order.created_at).toLocaleString("en-US", {
-                  month: "long",   // full month name
-                  day: "numeric",  // day of the month
-                  hour: "numeric", // hour
-                  minute: "2-digit", // minute with leading zero
-                  hour12: true     // AM/PM
-                })}
-              </p>
+              <p>Created: {formatTime(order.created_at)}</p>
             </div>
           </div>
         )}
@@ -198,18 +210,18 @@ return (
                 {items.map((item) => (
                   <tr
                     key={item.item_id}
-                    className="border-t last:border-b-0"
+                    className="last:border-b-0"
                   >
-                    <td className="px-4 py-3 font-medium text-foreground">
+                    <td className="p-4 font-medium text-foreground">
                       {item.product_name}
                     </td>
 
-                    <td className="px-4 py-3 text-center text-muted-foreground">
+                    <td className="w-1/2 text-muted-foreground text-right text-xs">
                       × {item.quantity}
                     </td>
 
-                    <td className="px-4 py-3 text-right font-semibold text-foreground">
-                      $ {item.subtotal}
+                    <td className="p-4 text-right font-semibold text-foreground">
+                      {formatPriceVND(item.subtotal)}
                     </td>
                   </tr>
                 ))}
@@ -223,17 +235,17 @@ return (
         {/* Total */}
         {order && (
           <div className="flex justify-between items-center">
-            <span className="text-base font-semibold text-gray-700">
+            <span className="text-base font-semibold text-primary">
               Total
             </span>
-            <span className="text-base font-bold text-gray-900">
-              $ {order.total}
+            <span className="text-base font-bold text-primary">
+              {formatPriceVND(order.total)}
             </span>
           </div>
         )}
 
         {/* Action */}
-        {order && order.status === "WAITING_PAYMENT" && (
+        {order && order.status === "Waiting for Payment" && (
           <Button
             onClick={handleConfirmPayment}
             disabled={loading}

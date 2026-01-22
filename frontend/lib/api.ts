@@ -1,17 +1,23 @@
-export async function apiPost<T>(url: string, data: any): Promise<T> {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include", // ⭐ REQUIRED FOR Flask-Login
-    body: JSON.stringify(data),
-  })
+import { API_BASE_URL, API_TIMEOUT } from "@/constants/api"
 
-  if (!res.ok) {
-    const err = await res.json()
-    throw new Error(err.error || "Something went wrong")
+export async function apiFetch(
+  endpoint: string,
+  options: RequestInit = {}
+) {
+  const controller = new AbortController()
+  const id = setTimeout(() => controller.abort(), API_TIMEOUT)
+
+  try {
+    return await fetch(`${API_BASE_URL}${endpoint}`, {
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+      ...options,
+      signal: controller.signal,
+    })
+  } finally {
+    clearTimeout(id)
   }
-
-  return res.json()
 }

@@ -7,7 +7,9 @@ import Navigation from "@/components/Navigation"
 import type { CartItem, MenuItem } from "@/types"
 import { ReactNode, useState, createContext } from "react"
 import { useRouter } from "next/navigation"
-
+import { API_BASE_URL } from "@/constants/api"
+import { apiFetch } from "@/lib/api"
+import { SettingsProvider } from "./providers/SettingsProvider"
 
 interface RootLayoutProps {
   children: ReactNode
@@ -27,7 +29,7 @@ export const CartContext = createContext<CartContextType | null>(null)
 export default function RootLayout({ children }: RootLayoutProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  
+
   const [currentPage, setCurrentPage] =
     useState<"menu" | "cart" | "feedback" | "account">("menu")
 
@@ -65,41 +67,38 @@ export default function RootLayout({ children }: RootLayoutProps) {
   }
 
   const checkout = async () => {
-  if (cart.length === 0) return
+    if (cart.length === 0) return
 
-  setLoading(true)
-  try {
-    const res = await fetch("http://localhost:5000/api/order", {
-      method: "POST",
-      credentials: "include", // 🔥 flask-login
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        items: cart.map(item => ({
-          product_id: item.id,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-      }),
-    })
-    if (res.status === 401) {
-      router.push("/login")
-      return
-    }
-    if (!res.ok) {
-      throw new Error("Checkout failed")
-    }
+    setLoading(true)
 
-    setCart([]) // ✅ clear cart
-    alert("Order placed successfully!")
-  } catch (err) {
-    console.error(err)
-    alert("Failed to place order")
-  } finally {
-    setLoading(false)
+    try {
+      const res = await apiFetch("/order", {
+        method: "POST",
+        body: JSON.stringify({
+          items: cart.map(item => ({
+            product_id: item.id,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        }),
+      })
+      if (res.status === 401) {
+        router.push("/login")
+        return
+      }
+      if (!res.ok) {
+        throw new Error("Checkout failed")
+      }
+
+      setCart([])
+      alert("Order placed successfully!")
+    } catch (err) {
+      console.error(err)
+      alert("Failed to place order")
+    } finally {
+      setLoading(false)
+    }
   }
-}
   return (
     <html lang="en">
       <head>
@@ -114,6 +113,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
       <body className="font-body antialiased bg-background">
         {/* ✅ Provider PHẢI bọc children */}
+        <SettingsProvider>
           <CartContext.Provider
             value={{
               cart,
@@ -139,6 +139,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         </CartContext.Provider>
 
         <Analytics />
+        </SettingsProvider>
       </body>
     </html>
   )

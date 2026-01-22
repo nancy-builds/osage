@@ -5,6 +5,8 @@ import MenuCard from "./MenuCard"
 import { useRouter } from "next/navigation"
 import type { MenuItem } from "@/types"
 import { Search, User } from "lucide-react"
+import { apiFetch } from "@/lib/api"
+import ContentState from "@/components/layout/ContentState"
 
 interface MenuPageProps {
   onAddToCart: (item: MenuItem) => void
@@ -14,40 +16,57 @@ export default function MenuPage({ onAddToCart }: MenuPageProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [items, setItems] = useState<MenuItem[]>([])
-  
+const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    fetch("http://localhost:5000/api/menu/products", {
-      credentials: "include",
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text()
-          throw new Error(`HTTP ${res.status}: ${text}`)
-        }
-        return res.json()
-      })
-      .then((data) => {
-        if (!Array.isArray(data)) {
-          console.error("Menu API did not return an array:", data)
-          setItems([])
-          return
-        }
 
-        // 🔑 normalize backend → frontend shape
-        const normalized: MenuItem[] = data.map((p) => ({
-          ...p,
-          image: p.image_url, // 👈 CRITICAL FIX
-        }))
+useEffect(() => {
+  let mounted = true
 
-        setItems(normalized)
-      })
-      .catch((err) => {
-        console.error("Menu fetch error:", err)
-        setItems([])
-      })
-  }, [])
+  const loadMenu = async () => {
+    try {
+      mounted && setIsLoading(true) // ✅ START loading
 
+      const res = await apiFetch("/menu/products")
+
+      if (res.status === 401 || res.status === 403) {
+        mounted && setItems([])
+        return
+      }
+
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(`HTTP ${res.status}: ${text}`)
+      }
+
+      const data = await res.json()
+
+      if (!Array.isArray(data)) {
+        console.error("Menu API did not return an array:", data)
+        mounted && setItems([])
+        return
+      }
+
+      // 🔑 normalize backend → frontend shape
+      const normalized: MenuItem[] = data.map(p => ({
+        ...p,
+        image: p.image_url,
+      }))
+
+      mounted && setItems(normalized)
+    } catch (err) {
+      console.error("Menu fetch error:", err)
+      mounted && setItems([])
+    } finally {
+      mounted && setIsLoading(false) // ✅ END loading
+    }
+  }
+
+  loadMenu()
+
+  return () => {
+    mounted = false
+  }
+}, [])
 
   const categories = Array.from(
       new Set(items.map((item) => item.category)))
@@ -104,22 +123,22 @@ export default function MenuPage({ onAddToCart }: MenuPageProps) {
         </div>
       </div>
 
-      {/* Menu Grid */}
-      <div className="p-4 grid grid-cols-2 gap-3">
-        {filteredItems.map((item) => (
-          <MenuCard 
-          key={item.id} 
-          item={item} 
-          onAddToCart={onAddToCart} 
-          />
-        ))}
-      </div>
-
-      {filteredItems.length === 0 && (
-        <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">No items found</p>
+      <ContentState
+        isLoading={isLoading}
+        isEmpty={!isLoading && filteredItems.length === 0}
+        emptyText="No items found"
+      >
+        {/* Menu Grid */}
+        <div className="p-4 grid grid-cols-2 gap-3">
+          {filteredItems.map((item) => (
+            <MenuCard 
+            key={item.id} 
+            item={item} 
+            onAddToCart={onAddToCart} 
+            />
+          ))}
         </div>
-      )}
+      </ContentState>
     </div>
   )
 }

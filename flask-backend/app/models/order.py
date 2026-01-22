@@ -15,11 +15,6 @@ class Order(db.Model):
         nullable=False
     )
 
-    restaurant_id = db.Column(
-        db.UUID(as_uuid=True),
-        db.ForeignKey("restaurants.id"),
-        nullable=False
-    )
 
     status = db.Column(
         db.String(30),

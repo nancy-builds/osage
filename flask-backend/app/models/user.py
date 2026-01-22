@@ -39,12 +39,6 @@ class User(db.Model, UserMixin):
         back_populates="users"
     )
     
-    restaurant = db.relationship(
-        "Restaurant",
-        uselist=False,
-        back_populates="owner",
-        cascade="all, delete-orphan"
 
-    )
     def get_id(self):
         return str(self.id)  # 🔥 REQUIRED

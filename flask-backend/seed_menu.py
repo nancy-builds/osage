@@ -3,13 +3,14 @@ from app import create_app
 from app.extensions import db
 from app.models.category import Category
 from app.models.product import Product
+from app.models.order import OrderItem
 
 MENU_ITEMS = [
     {
         "name": "Edamame",
         "name_japanese": "枝豆",
         "description": "Steamed soybeans with sea salt",
-        "price": 5.99,
+        "price": 100000,
         "category": "Appetizers",
         "vegetarian": True,
         "image_url": "/menu/edamame.png",
@@ -18,7 +19,7 @@ MENU_ITEMS = [
         "name": "Gyoza",
         "name_japanese": "餃子",
         "description": "Pan-fried dumplings with pork and vegetables",
-        "price": 7.99,
+        "price": 210000,
         "category": "Appetizers",
         "image_url": "/menu/gyoza.png",
     },
@@ -26,7 +27,7 @@ MENU_ITEMS = [
         "name": "Tempura",
         "name_japanese": "てんぷら",
         "description": "Lightly battered and fried shrimp and vegetables",
-        "price": 8.99,
+        "price": 320000,
         "category": "Appetizers",
         "vegetarian": False,
         "image_url": "/menu/tempura.png",
@@ -35,7 +36,7 @@ MENU_ITEMS = [
         "name": "Teriyaki Chicken",
         "name_japanese": "チキン照り焼き",
         "description": "Grilled chicken with teriyaki sauce",
-        "price": 12.99,
+        "price": 98000,
         "category": "Main Courses",
         "image_url": "/menu/teriyaki.png",   
     },
@@ -43,7 +44,7 @@ MENU_ITEMS = [
         "name": "Salmon Sashimi",
         "name_japanese": "サーモン刺身",
         "description": "Fresh sliced salmon, 3 pieces",
-        "price": 14.99,
+        "price": 60000,
         "category": "Main Courses",
         "image_url": "/menu/salmon_sashimi.png",
     },
@@ -51,7 +52,7 @@ MENU_ITEMS = [
         "name": "Tonkatsu",
         "name_japanese": "とんかつ",
         "description": "Breaded pork cutlet with panko crust",
-        "price": 13.99,
+        "price": 120000,
         "category": "Main Courses",
         "image_url": "/menu/tonkatsu.png",
     },
@@ -59,7 +60,7 @@ MENU_ITEMS = [
         "name": "Ramen",
         "name_japanese": "ベジタブルラーメン",
         "description": "Noodles in rich broth with pork and vegetables",
-        "price": 11.99,
+        "price": 230000,
         "category": "Main Courses",
         "image_url": "/menu/ramen.png",
     },
@@ -67,7 +68,7 @@ MENU_ITEMS = [
         "name": "Vegetable Ramen",
         "name_japanese": "ベジタブルラーメン",
         "description": "Noodles in rich broth with vegetables",
-        "price": 11.99,
+        "price": 80000,
         "category": "Main Courses",
         "vegetarian": True,
         "image_url": "/menu/vegetable_ramen.png",
@@ -76,7 +77,7 @@ MENU_ITEMS = [
         "name": "California Roll",
         "name_japanese": "カリフォルニアロール",
         "description": "Crab, avocado, cucumber - 6 pieces",
-        "price": 9.99,
+        "price": 99000,
         "category": "Sushi",
         "vegetarian": False,
         "image_url": "/menu/california_roll.png",
@@ -85,7 +86,7 @@ MENU_ITEMS = [
         "name": "Spicy Tuna Roll",
         "name_japanese": "スパイシーツナロール",
         "description": "Spicy tuna with cucumber - 6 pieces",
-        "price": 10.99,
+        "price": 190000,
         "category": "Sushi",
         "spicy": 3,
         "image_url": "/menu/spicy_tuna_roll.png",
@@ -94,7 +95,7 @@ MENU_ITEMS = [
         "name": "Dragon Roll",
         "name_japanese": "ドラゴンロール",
         "description": "Shrimp tempura, cucumber, avocado - 6 pieces",
-        "price": 12.99,
+        "price": 120000,
         "category": "Sushi",
         "image_url": "/menu/dragon_roll.png",
     },
@@ -102,7 +103,7 @@ MENU_ITEMS = [
         "name": "Sake",
         "name_japanese": "酒",
         "description": "Traditional rice wine - 6oz",
-        "price": 8.99,
+        "price": 80000,
         "category": "Beverages",
         "vegetarian": True,
         "image_url": "/menu/sake.png",
@@ -111,7 +112,7 @@ MENU_ITEMS = [
         "name": "Green Tea",
         "name_japanese": "緑茶",
         "description": "Hot green tea",
-        "price": 2.99,
+        "price": 29000,
         "category": "Beverages",
         "vegetarian": True,
         "image_url": "/menu/green_tea.png",
@@ -120,7 +121,7 @@ MENU_ITEMS = [
         "name": "Mango Smoothie",
         "name_japanese": "マンゴースムージー",
         "description": "Fresh mango smoothie",
-        "price": 5.99,
+        "price": 59000,
         "category": "Beverages",
         "vegetarian": True,
         "image_url": "/menu/mango_smoothie.png",
@@ -130,6 +131,11 @@ MENU_ITEMS = [
 def seed():
     app = create_app()
     with app.app_context():
+        # 🔥 DELETE DEPENDENT DATA FIRST
+        OrderItem.query.delete()
+        Product.query.delete()
+        db.session.commit()
+
         categories_cache = {}
 
         for item in MENU_ITEMS:
@@ -151,7 +157,6 @@ def seed():
 
         db.session.commit()
         print("✅ Menu seeded successfully")
-
 
 if __name__ == "__main__":
     seed()

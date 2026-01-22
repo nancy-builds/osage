@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import FeedbackPage from "@/components/FeedbackPage"
+import { API_BASE_URL, API_TIMEOUT } from "@/constants/api"
 
 export default function Feedback({
   params,
@@ -21,7 +22,7 @@ export default function Feedback({
     const checkStatus = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/order/${orderId}/status`,
+          `${API_BASE_URL}/order/${orderId}/status`,
           { credentials: "include" }
         )
         if (!res.ok) return
@@ -41,7 +42,7 @@ export default function Feedback({
     setLoading(true)
     try {
       const res = await fetch(
-        `http://localhost:5000/api/feedback/${orderId}`,
+        `${API_BASE_URL}/feedback/${orderId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

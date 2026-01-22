@@ -5,8 +5,12 @@ import type { CartItem } from "@/types"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-  import { useParams } from "next/navigation"
-
+import { useParams } from "next/navigation"
+import { PageHeader } from "@/components/layout/PageHeader"
+import { formatPriceVND } from '@/hooks/format-price'
+import { apiFetch } from "@/lib/api"
+import ContentState from "@/components/layout/ContentState"
+import { AlertDescription, Alert, AlertTitle } from "./ui/alert"
 
 interface CartPageProps {
   cart: CartItem[]
@@ -14,7 +18,6 @@ interface CartPageProps {
   onRemoveItem: (itemId: string) => void
   loading: boolean
   table_number: number
-
 }
 
 export default function CartPage({ cart, onUpdateQuantity, onRemoveItem, loading }: CartPageProps) {
@@ -22,98 +25,109 @@ export default function CartPage({ cart, onUpdateQuantity, onRemoveItem, loading
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const tax = total * 0.1
   const [tableNumber, setTableNumber] = useState<number | null>(null)
-
-const params = useParams()
-const restaurantId = params.restaurantId as string
+const [showTableAlert, setShowTableAlert] = useState(false)
 
   const finalTotal = total + tax
+
 const onCheckout = async () => {
   if (cart.length === 0) return
 
-  if (tableNumber === null) {
-    alert("Please enter your table number")
+  if (!tableNumber) {
+    setShowTableAlert(true)
     return
   }
 
-try {
-  if (!restaurantId) {
-    throw new Error("Restaurant not selected")
+  try {
+    const res = await apiFetch("/order", {
+      method: "POST",
+      body: JSON.stringify({
+        table_number: tableNumber,
+        items: cart.map(item => ({
+          product_id: item.id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      }),
+    })
+
+    if (res.status === 401) {
+      alert("Please log in to place an order")
+      return
+    }
+
+    let data: any = null
+    try {
+      data = await res.json()
+    } catch {
+      // ignore empty body
+    }
+
+    if (!res.ok) {
+      console.error("Order error:", data)
+      alert(data?.error || "Failed to create order")
+      return
+    }
+
+    router.push(`/payment/${data.order_id}`)
+  } catch (err) {
+    console.error("Checkout error:", err)
+    alert("Network error. Please try again.")
   }
-
-  const res = await fetch("http://localhost:5000/api/order", {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      restaurant_id: restaurantId, // 🔥 REQUIRED
-      table_number: tableNumber,
-      items: cart.map((item) => ({
-        product_id: item.id,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-    }),
-  })
-
-  if (!res.ok) {
-    const err = await res.json()
-    console.error("Order error:", err)
-    throw new Error(err.error || "Failed to create order")
-  }
-
-  const data = await res.json()
-  router.push(`/payment/${data.order_id}`)
-
-} catch (err) {
-  console.error("Checkout error:", err)
-  alert("Checkout failed")
-}
-
 }
 
   return (
     <div className="pb-24 max-w-lg mx-auto">
       {/* Header */}
-      <div className="sticky top-0 bg-card border-b border-border p-4 z-10">
-        <h1 className="text-2xl font-bold text-foreground">Your Order</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {cart.length} item{cart.length !== 1 ? "s" : ""}
-        </p>
-      </div>
+
+        <PageHeader
+          title="Your Order"
+          description={`${cart.length} item${cart.length !== 1 ? "s" : ""}`}
+        />
 
         {/* Table Number */}
         <div className="p-4 space-y-3">
-          <label className="block text-sm font-semibold text-foreground mb-2">Table Number</label>
+          <label className="block text-sm font-semibold text-foreground mb-2">
+            Table Number
+          </label>
+
           <input
             type="number"
             min="1"
             value={tableNumber ?? ""}
-            onChange={(e) =>
-              setTableNumber(
-                e.target.value === "" ? null : Number(e.target.value)
-              )
-            }
+            onChange={(e) => {
+              const value = e.target.value
+              setTableNumber(value === "" ? null : Number(value))
+              setShowTableAlert(false) // clear alert on typing
+            }}
             placeholder="Enter table number"
-            className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            className="w-full px-4 py-2 bg-background border border-border rounded-lg
+              focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           />
+
+          {showTableAlert && (
+            <Alert variant={"danger"}>
+              <AlertTitle>Table Number Required</AlertTitle>
+              <AlertDescription>
+                Enter your table number to continue with your order.          
+                </AlertDescription>
+            </Alert>
+          )}
         </div>
 
-      {cart.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 p-4">
-          <p className="text-muted-foreground text-center">Your cart is empty</p>
-          <p className="text-xs text-muted-foreground mt-2">Add items from the menu to get started</p>
-        </div>
-      ) : (
-        <>
+                
+        <ContentState
+          isEmpty={cart.length === 0}
+          emptyText="No items found"
+          emptyDescription="Add items from the menu to get started"
+        >
+
           {/* Cart Items */}
           <div className="p-4 space-y-3">
             {cart.map((item) => (
               <div key={item.id} className="flex gap-3 bg-card border border-border rounded-lg p-3">
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground text-sm">{item.name}</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">${item.price.toFixed(2)} each</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{formatPriceVND(item.price)} each</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -130,7 +144,9 @@ try {
                   >
                     <Plus className="w-4 h-4" />
                   </button>
-                  <span className="w-16 text-right font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="w-16 text-right font-semibold">
+                    {formatPriceVND(item.price * item.quantity)} 
+                  </span>
                   <button
                     onClick={() => onRemoveItem(item.id)}
                     className="p-1 hover:bg-destructive/10 rounded text-destructive ml-1"
@@ -146,15 +162,15 @@ try {
           <div className="p-4 space-y-2 border-t border-border">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="text-foreground">${total.toFixed(2)}</span>
+              <span className="text-foreground">{formatPriceVND(total)} </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Tax (10%)</span>
-              <span className="text-foreground">${tax.toFixed(2)}</span>
+              <span className="text-foreground">{formatPriceVND(tax)} </span>
             </div>
             <div className="flex justify-between text-base font-bold pt-2 border-t border-border">
               <span>Total</span>
-              <span className="text-primary">${finalTotal.toFixed(2)}</span>
+              <span className="text-primary">{formatPriceVND(finalTotal)} </span>
             </div>
             
             {/* Submit Button */}
@@ -171,8 +187,8 @@ try {
           </div>
 
 
-        </>
-      )}
+        </ContentState>
+      {/* )} */}
     </div>
   )
 }

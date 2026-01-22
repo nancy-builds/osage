@@ -26,34 +26,20 @@ def place_order():
         return jsonify({"error": "Invalid JSON body"}), 400
 
     items = data.get("items")
-    restaurant_id = data.get("restaurant_id")
 
     if not items:
         return jsonify({"error": "Cart is empty"}), 400
 
-    if not restaurant_id:
-        return jsonify({"error": "restaurant_id is required"}), 400
-
-    try:
-        restaurant_id = uuid.UUID(restaurant_id)
-    except Exception:
-        return jsonify({"error": "Invalid restaurant_id"}), 400
-
-    restaurant = Restaurant.query.get(restaurant_id)
-    if not restaurant:
-        return jsonify({"error": "Restaurant not found"}), 404
-
     try:
         order = Order(
             user_id=current_user.id,
-            restaurant_id=restaurant.id,  # ✅ LINKED HERE
             status=OrderStatus.PENDING.value,
             total=Decimal("0.00"),
             table_number=data.get("table_number")
         )
 
         db.session.add(order)
-        db.session.flush()
+        db.session.flush()  # get order.id
 
         total = Decimal("0.00")
 
@@ -94,7 +80,6 @@ def place_order():
 
         return jsonify({
             "order_id": str(order.id),
-            "restaurant_id": str(order.restaurant_id),
             "total": str(order.total),
             "status": order.status,
             "table_number": order.table_number,
@@ -124,10 +109,8 @@ def get_payment_qr(order_id):
     payment = Payment.query.filter_by(order_id=order.id).first()
 
     if payment:
-        # Reuse the existing payment reference
         payment_reference = payment.payment_reference
     else:
-        # Create a new payment if none exists
         payment_reference = f"ORDER-{order.id.hex[:8]}"
         payment = Payment(
             order_id=order.id,
@@ -137,10 +120,8 @@ def get_payment_qr(order_id):
         )
         db.session.add(payment)
 
-        # Update order status only if payment is new
-        order.status = OrderStatus.WAITING_PAYMENT
-
-        db.session.commit()  # commit both Payment + order status
+    order.status = OrderStatus.WAITING_PAYMENT
+    db.session.commit()  # commit both Payment + order status
 
     return jsonify({
         "order_id": str(order.id),
@@ -229,11 +210,7 @@ def get_all_orders():
 @login_required
 @role_required(Roles.RESTAURANT)
 def get_restaurant_orders():
-    restaurant = current_user.restaurant
-    if not restaurant:
-        return jsonify({"error": "Restaurant not found"}), 404
-
-    orders = Order.query.filter_by(restaurant_id=restaurant.id).all()
+    orders = Order.query.all()
 
     return jsonify([
         {
@@ -245,6 +222,34 @@ def get_restaurant_orders():
         }
         for order in orders
     ])
+
+
+@order_bp.route("/restaurant/order-details/<order_id>", methods=["GET"])
+@login_required
+@role_required(Roles.RESTAURANT)
+def get_order_details_by_id(order_id):
+    order = Order.query.get_or_404(order_id)
+
+    return jsonify({
+        "id": str(order.id),
+        "user_id": str(order.user_id),
+        "status": order.status,
+        "total": str(order.total),
+        "table_number": order.table_number,
+        "points_earned": order.points_earned,
+        "created_at": order.created_at.isoformat(),
+        "items": [
+            {
+                "id": str(item.id),
+                "product_id": str(item.product_id),
+                "product_name": item.product.name if item.product else None,
+                "quantity": item.quantity,
+                "price": str(item.price),
+                "subtotal": str(item.price * item.quantity),
+            }
+            for item in order.items
+        ],
+    })
 
 
 @order_bp.route("/payment/confirm/<uuid:order_id>", methods=["POST"])
@@ -263,6 +268,29 @@ def confirm_payment(order_id):
 
     return jsonify({
         "message": "Payment confirmed",
+        "order_id": str(order.id),
+        "status": order.status
+    })
+
+
+@order_bp.route("/<uuid:order_id>/done", methods=["POST"])
+@login_required
+@role_required(Roles.RESTAURANT)
+def mark_order_done(order_id):
+    order = Order.query.filter_by(id=order_id).first_or_404()
+
+    if order.status != OrderStatus.PAID:
+        return jsonify({
+            "error": "Only paid orders can be marked as done"
+        }), 400
+
+    order.status = OrderStatus.DONE
+    order.completed_at = datetime.utcnow()
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Order marked as done",
         "order_id": str(order.id),
         "status": order.status
     })

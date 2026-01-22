@@ -8,7 +8,6 @@ from datetime import datetime
 from ..constants.roles import Roles
 from ..utils.permissions import role_required
 
-
 auth_bp = Blueprint("auth", __name__)
 
 @login_manager.user_loader
@@ -51,15 +50,6 @@ def register():
         db.session.add(user)
         db.session.flush()  # 🔥 get user.id before commit
 
-        # ✅ SIMPLE restaurant creation
-        if role == "restaurant":
-            restaurant = Restaurant(
-                owner_id=user.id,
-                name=full_name or f"Restaurant {phone[-4:]}",
-                phone=phone
-            )
-            db.session.add(restaurant)
-
         db.session.commit()
 
         return jsonify({
@@ -75,6 +65,7 @@ def register():
     except Exception as e:
         db.session.rollback()
         return jsonify({"message": str(e)}), 500
+
 
 @auth_bp.post("/login")
 def login():
@@ -138,20 +129,7 @@ def profile():
 
     }), 200
 
-@auth_bp.get("/restaurant-profile")
-@login_required
-@role_required(Roles.RESTAURANT)
-def get_restaurant_by_owner(owner_id):
-    restaurant = Restaurant.query.filter_by(owner_id=owner_id).first_or_404()
 
-    return jsonify({
-        "id": str(restaurant.id),
-        "name": restaurant.name,
-        "address": restaurant.address,
-        "phone": restaurant.phone,
-        "owner_id": str(restaurant.owner_id),
-        "created_at": restaurant.created_at.isoformat()
-    }), 200
 
 
 @auth_bp.put("/profile-info")
@@ -193,5 +171,3 @@ def update_profile():
         }
     }), 200
 
-
-    

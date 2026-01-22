@@ -5,6 +5,8 @@ import type { MenuItem } from "@/types"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from '@/hooks/use-auth'
+import { Badge } from "@/components/ui/badge"
+import { formatPriceVND } from '@/hooks/format-price'
 
 
 interface MenuCardProps {
@@ -51,21 +53,21 @@ return (
       {/* Tags */}
       <div className="flex gap-1 mb-2 flex-wrap">
         {item.vegetarian && (
-          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+          <Badge>
             Vegetarian
-          </span>
+          </Badge>
         )}
         {item.spicy && (
-          <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">
+          <Badge variant={"secondary"}>
             Spicy
-          </span>
+          </Badge>
         )}
       </div>
 
       {/* Price & Button */}
       <div className="flex items-center justify-between">
         <span className="font-bold text-primary">
-          ${item.price.toFixed(2)}
+          {formatPriceVND(item.price)}
         </span>
 
         {userRole === "CUSTOMER" && (

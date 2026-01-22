@@ -1,18 +1,21 @@
 "use client"
 
 import type React from "react"
-
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { badgeVariants, Badge } from "@/components/ui/badge"
+import { formatTime } from '@/hooks/format-time'
+
+
 export interface ProfileHeaderProps {
   full_name: string
-  phone: string
-  avatar_url: string | null
-  membership_level: "basic" | "silver" | "gold" | "vip"
-  loyalty_points: number
-  created_at: string
-  role: string
+  avatar_url?: string
+  phone?: string
+  membership_level?:  "basic" | "silver" | "gold" | "vip" 
+  loyalty_points?: number
+  created_at?: string
+  role?: string
 }
+
 
 export function ProfileHeader({ full_name, phone, avatar_url, membership_level, loyalty_points, created_at, role }: ProfileHeaderProps) {
   const initials =
@@ -22,6 +25,7 @@ export function ProfileHeader({ full_name, phone, avatar_url, membership_level, 
       .map((n) => n[0])
       .join("")
       .toUpperCase() ?? "?"
+
   return (
     <div className="bg-background border-b border-border">
       <div className="px-6 py-8">
@@ -31,58 +35,74 @@ export function ProfileHeader({ full_name, phone, avatar_url, membership_level, 
               src={avatar_url || "/profile/chopstick.png"} 
               alt={full_name} 
               className="h-24 w-24 object-contain mx-auto my-auto" />
-            <AvatarFallback className="bg-primary text-accent-foreground text-3xl font-semibold">
+            <AvatarFallback className="text-accent-foreground text-3xl font-semibold">
               {initials}
             </AvatarFallback>
           </Avatar>
 
-      <div className="flex-1 min-w-0">
-        {/* Name */}
-        <h1 className="text-xl font-semibold text-foreground leading-tight">
-          {full_name}
-        </h1>
+          <div className="flex-1 min-w-0">
+            {/* Name */}
+            <h1 className="text-xl font-semibold text-foreground leading-tight">
+              {full_name}
+            </h1>
 
-        {/* Phone */}
-        <p className="text-sm text-muted-foreground mt-1">
-          {phone}
-        </p>
-        <p className="text-xs tracking-wide text-muted-foreground">
-          Member since: {created_at}
-        </p>
+            {/* Phone */}
+            <div className="text-xs mt-3 tracking-wide text-muted-foreground">
+              <p>Phone: {phone}</p>
+              <p>Member since: {formatTime(created_at)}</p>
+            </div>
+            
+            {/* Meta info */}
+            <div className="mt- flex flex-wrap items-center gap-x-10 pt-3">
+              {/* CUSTOMER META */}
+              {role !== "restaurant" && (
+                <>
+                  {membership_level && (
+                      <Badge>{membership_level}</Badge>
+                  )}
 
-        {/* Meta info */}
-        <div className="mt-4 flex flex-wrap items-center gap-x-15 gap-y-3">
-          {/* Status */}
-          <div>
-            <p className="text-xs tracking-wide text-muted-foreground">
-              Status
-            </p>
-            <Badge>
-              {membership_level}
-            </Badge>
-          </div>
+                  {loyalty_points !== undefined && (
+                  <div className="flex items-center gap-1">
+                    <p className="text-xs tracking-wide text-muted-foreground">
+                      Loyalty Points:
+                    </p>
+                    <p className="text-xs font-semibold text-primary">
+                      {loyalty_points}
+                    </p>
+                  </div>
 
-          {/* Loyalty points */}
-          <div>
-            <p className="text-xs tracking-wide text-muted-foreground">
-              Loyalty Points
-            </p>
-            <p className="text-sm font-semibold text-primary">
-              {loyalty_points}
-            </p>
+                  )}
+                </>
+              )}
+
+              {/* RESTAURANT META */}
+              {role === "restaurant" && (
+                <>
+                  <div>
+                    <p className="text-xs tracking-wide text-muted-foreground">
+                      Role
+                    </p>
+                    <p className="text-xs font-medium text-primary">
+                      Restaurant
+                    </p>
+                  </div>
+
+                  <div>
+                    <Badge>Active</Badge>
+                  </div>
+                </>
+              )}
+            </div>
+
+
+
 
           </div>
         </div>
-
-
-
-
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      }
+      </div>
+    </div>
+    )
+  }
 
 interface MenuItemProps {
   icon: React.ReactNode

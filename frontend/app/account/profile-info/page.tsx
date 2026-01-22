@@ -6,7 +6,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
+import { apiFetch } from "@/lib/api"
+import { AccountPageHeader } from "@/components/layout/AccountPageHeader"
 
 type ProfileForm = {
   fullName: string
@@ -28,35 +29,40 @@ export default function ProfileInfoPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSave = async () => {
-  const res = await fetch("http://localhost:5000/api/auth/profile-info", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include", // IMPORTANT if using session auth
-    body: JSON.stringify(formData),
-  })
+const handleSave = async () => {
+  try {
+    const res = await apiFetch("/auth/profile-info", {
+      method: "PUT",
+      body: JSON.stringify(formData),
+    })
 
-  const data = await res.json()
+    if (res.status === 401) {
+      alert("Please log in again")
+      return
+    }
 
-  if (!res.ok) {
-    alert(data.message || "Failed to update profile")
-    return
+    let data: any = null
+    try {
+      data = await res.json()
+    } catch {
+      // ignore empty body
+    }
+
+    if (!res.ok) {
+      alert(data?.message || "Failed to update profile")
+      return
+    }
+
+    alert("Profile information saved!")
+  } catch (err) {
+    console.error(err)
+    alert("Network error. Please try again.")
   }
-
-  alert("Profile information saved!")
 }
-
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="flex items-center gap-4 px-6 py-4 border-b border-border">
-        <Link href="/account" className="text-accent hover:opacity-80">
-          <ChevronLeft size={24} />
-        </Link>
-        <h1 className="text-xl font-bold text-foreground">Profile Information</h1>
-      </div>
+      <AccountPageHeader link="/account" title="Profile Information" description="Update your personal information and keep your profile up to date"/>
 
       <div className="max-w-2xl mx-auto p-6 space-y-6">
         <div className="bg-card border border-border rounded-lg p-6 space-y-4">
@@ -68,6 +74,7 @@ export default function ProfileInfoPage() {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
+                placeholder="eg. Nguyen Tuyet Nhung"
                 className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
               />
             </div>
@@ -80,6 +87,7 @@ export default function ProfileInfoPage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              placeholder="eg. osage@gmail.com"
               className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
@@ -91,6 +99,7 @@ export default function ProfileInfoPage() {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
+              placeholder="eg. 0123 456 7890"
               className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>

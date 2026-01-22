@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { apiPost } from "@/lib/api"
+import { apiFetch } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-
+import { CircleAlert } from "lucide-react"
 
 export default function LoginForm() {
   const router = useRouter()
@@ -19,20 +19,36 @@ export default function LoginForm() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setLoading(true)
+  setError("")
 
+  try {
+    const res = await apiFetch("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(form),
+    })
+
+    let data: any = null
     try {
-      await apiPost("/api/auth/login", form)
-      router.push("/feedback") // go to feedback page
-    } catch (err: any) {
-      setError(err.message || "Login failed")
-    } finally {
-      setLoading(false)
+      data = await res.json()
+    } catch {
+      // ignore empty body
     }
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Login failed")
+    }
+
+    alert("Login successful!")
+    router.push("/feedback")
+  } catch (err: any) {
+    setError(err.message || "Network error. Please try again.")
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="max-w-md w-full bg-white rounded-xl border p-8">
@@ -44,8 +60,9 @@ export default function LoginForm() {
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Error */}
         {error && (
-          <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
-            {error}
+          <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+            <CircleAlert className="w-5 h-5" />
+            <span>{error}</span>
           </div>
         )}
 

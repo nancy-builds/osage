@@ -1,10 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { apiPost } from "@/lib/api"
+import { apiFetch } from "@/lib/api"
 import { CircleAlert } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { ro } from "date-fns/locale"
 import { Button } from "@/components/ui/button"
 
 
@@ -23,35 +22,43 @@ export default function RegisterForm() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
 
-    // Validate phone
-    const phoneRegex = /^\+?\d{10,15}$/
-    if (!phoneRegex.test(form.phone)) {
-      setError("Please enter a valid phone number")
-      setLoading(false)
-      return
-    }
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setLoading(true)
 
-    setError("")
-
-    try {
-      await apiPost("/api/auth/register", form)
-      router.push("/login")
-    } catch (err: any) {
-      setError(err.message || "Register failed")
-    } finally {
-      setLoading(false)
-    }
+  // Validate phone
+  const phoneRegex = /^\+?\d{10,15}$/
+  if (!phoneRegex.test(form.phone)) {
+    setError("Please enter a valid phone number")
+    setLoading(false)
+    return
   }
+
+  setError("")
+
+  try {
+    await apiFetch("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(form),
+    })
+
+    // ✅ success
+    router.push("/login")
+  } catch (err: any) {
+    // apiFetch already gives clean error.message
+    setError(err.message || "Network error. Please try again.")
+  } finally {
+    setLoading(false)
+  }
+}
+
 
   return (
     <div className="max-w-md w-full bg-white rounded-xl border p-8">
       <h2 className="text-3xl font-bold mb-2">Register</h2>
-      <p className="text-gray-500 text-sm mb-8">
-        Browse and order without signing in. Create an account to share feedback and earn special discounts.
+      <p className="text-gray-500 text-xs mb-5">
+        Create an account to share feedback and earn special discounts.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -59,7 +66,7 @@ export default function RegisterForm() {
         {/* Error */}
         {error && (
           <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
-            <CircleAlert className="w-6 h-6" />
+            <CircleAlert className="w-5 h-5" />
             <span>{error}</span>
           </div>
         )}

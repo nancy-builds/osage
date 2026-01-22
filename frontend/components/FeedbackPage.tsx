@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Star, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 
 interface FeedbackPageProps {
@@ -43,9 +44,10 @@ export default function FeedbackPage({
     return (
       <div className="pb-24 max-w-lg mx-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-card border-b border-border p-4 z-10">
-          <h1 className="text-2xl font-bold text-foreground">Rate Your Experience</h1>
-        </div>
+        <PageHeader
+          title="Feedback"
+          description="Your opinion helps us create a better experience for everyone"
+        />
 
         <div className="text-center mt-20">
           <h2 className="text-lg font-semibold">Order not completed</h2>
@@ -85,9 +87,10 @@ export default function FeedbackPage({
   return (
     <div className="pb-24 max-w-lg mx-auto">
       {/* Header */}
-      <div className="sticky top-0 bg-card border-b border-border p-4 z-10">
-        <h1 className="text-2xl font-bold text-foreground">Rate Your Experience</h1>
-      </div>
+          <PageHeader
+            title="Feedback"
+            description="Your opinion helps us create a better experience for everyone"
+          />
 
       <div className="p-3 space-y-6">
         {/* Rating Stars */}

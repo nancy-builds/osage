@@ -5,7 +5,10 @@ import { useParams, useRouter } from "next/navigation"
 import QRCode from "react-qr-code"
 import { MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
+import { formatPriceVND } from '@/hooks/format-price'
+import { apiFetch } from "@/lib/api"
+import { AlertDescription, Alert, AlertTitle } from "@/components/ui/alert"
+import ContentState from "@/components/layout/ContentState"
 
 export default function QRPaymentPage() {
   const { orderId } = useParams()
@@ -14,24 +17,50 @@ export default function QRPaymentPage() {
   const [status, setStatus] = useState<string>("")
   const [pointsEarned, setPointsEarned] = useState<number>(0)
   const [totalLoyaltyPoints, setTotalLoyaltyPoints] = useState<number>(0)
+const [showTableAlert, setShowTableAlert] = useState(false)
 
   useEffect(() => {
     if (!orderId) return
 
-    fetch(`http://localhost:5000/api/order/${orderId}`, {
-      credentials: "include",
-    })
-      .then(res => res.json())
-      .then(data => {
-        setPointsEarned(data.points_earned ?? 0)
-        setTotalLoyaltyPoints(data.user?.loyalty_points ?? 0)
-        setStatus(data.status)
-      })
-      .catch(console.error)
+    let mounted = true
+
+    const loadOrder = async () => {
+      try {
+        const res = await apiFetch(`/order/${orderId}`)
+
+        if (res.status === 401 || res.status === 403) {
+          mounted && setPointsEarned(0)
+          mounted && setTotalLoyaltyPoints(0)
+          mounted && setStatus(null)
+          return
+        }
+
+        if (!res.ok) {
+          throw new Error("Failed to load order")
+        }
+
+        const data = await res.json()
+
+        mounted && setPointsEarned(data.points_earned ?? 0)
+        mounted && setTotalLoyaltyPoints(data.user?.loyalty_points ?? 0)
+        mounted && setStatus(data.status)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    loadOrder()
+
+    return () => {
+      mounted = false
+    }
   }, [orderId])
 
 
   const WAITING_PAYMENT = () => {
+    if (!qrData) {
+      return <WAITING_QR />
+    }
     return (
       <div className="pb-24 max-w-lg mx-auto">
         {/* Header */}
@@ -49,17 +78,14 @@ export default function QRPaymentPage() {
         <div className="text-sm text-left space-y-1">
           <p><b>Account:</b> {qrData.bank.account_number}</p>
           <p><b>Name:</b> {qrData.bank.account_name}</p>
-          <p><b>Amount:</b> {qrData.amount} VND</p>
+          <p><b>Amount:</b> {formatPriceVND(qrData.amount)}</p>
           <p className="text-primary">
             <b>Transfer content:</b> {qrData.transfer_content}
           </p>
         </div>
-        </div>
-        <div className="flex justify-center">
-          <div className="flex items-center space-x-3 border border-gray-300 text-gray-800 px-4 py-1 rounded-md">
-            <span className="text-sm font-medium">
-              Waiting for restaurant confirmation...
-            </span>
+
+          <div className="flex items-center space-x-3 px-4 pt-5 rounded-md text-xs">
+            <p> Waiting for restaurant confirmation...</p>
 
             <lord-icon src="https://cdn.lordicon.com/xwpcjash.json"
                 trigger="loop" colors="primary:#dc143c"
@@ -74,16 +100,36 @@ export default function QRPaymentPage() {
 
   const PAID = () => {
     useEffect(() => {
-      fetch("http://localhost:5000/api/auth/profile", {
-        credentials: "include",
-      })
-        .then(res => res.json())
-        .then(user => {
-          setTotalLoyaltyPoints(user.loyalty_points)
-        })
+      let mounted = true
+
+      const loadLoyaltyPoints = async () => {
+        try {
+          const res = await apiFetch("/auth/profile")
+
+          if (res.status === 401) {
+            mounted && setTotalLoyaltyPoints(0)
+            return
+          }
+
+          if (!res.ok) {
+            throw new Error("Failed to load profile")
+          }
+
+          const user = await res.json()
+          mounted && setTotalLoyaltyPoints(user.loyalty_points ?? 0)
+        } catch (err) {
+          console.error(err)
+          mounted && setTotalLoyaltyPoints(0)
+        }
+      }
+
+      loadLoyaltyPoints()
+
+      return () => {
+        mounted = false
+      }
     }, [])
-
-
+    
     return (
       <div className="pb-24 max-w-lg mx-auto">
         {/* Header */}
@@ -94,7 +140,7 @@ export default function QRPaymentPage() {
           </p>
         </div>
         {/* Card */}
-        <div className="flex items-center justify-center bg-gray-50 pt-20 px-10">
+        <div className="flex items-center justify-center bg-gray-50 py-10">
           <div className="bg-white rounded-xl shadow-sm max-w-md w-full p-8 text-center space-y-5">
             
             {/* Success Icon */}
@@ -140,7 +186,7 @@ export default function QRPaymentPage() {
             </div>
             
             
-            <div className="flex flex-col gap-2 mt-10">
+            <div className="flex flex-col gap-2 mt-6">
 
               {/* Optional Button */}
               <Button
@@ -169,63 +215,112 @@ export default function QRPaymentPage() {
   const WAITING_QR = () => {
     return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center space-y-4 px-6">
-        <h1 className="text-xl font-semibold text-gray-800">
-          Please wait a moment
-        </h1>
-
-        <p className="text-gray-600">
-          Your payment QR code is being generated.
-        </p>
-
-        <div className="flex justify-center mt-4">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"></div>
-        </div>
-      </div>
+      <ContentState  isEmpty={true} emptyText="Generating QR Code" emptyDescription="Your payment QR code will appear in a moment"/>
     </div>
     )
   }
 
   // 1️⃣ Load QR
   useEffect(() => {
-    fetch(`http://localhost:5000/api/order/payment/qr/${orderId}`, {
-      credentials: "include",
-    })
-    .then(res => res.json())
-    .then(data => setQrData(data))
-    .catch(err => console.error("Failed to load QR:", err));  }, [orderId])
+    if (!orderId) return
+
+    let mounted = true
+
+    const loadQr = async () => {
+      try {
+        const res = await apiFetch(`/order/payment/qr/${orderId}`)
+
+        if (res.status === 401 || res.status === 403) {
+          mounted && setQrData(null)
+          return
+        }
+
+        if (!res.ok) {
+          throw new Error("Failed to load QR")
+        }
+
+        const data = await res.json()
+        mounted && setQrData(data)
+      } catch (err) {
+        console.error("Failed to load QR:", err)
+      }
+    }
+
+    loadQr()
+
+    return () => {
+      mounted = false
+    }
+  }, [orderId])
 
   // 2️⃣ Poll order status
   useEffect(() => {
-    const interval = setInterval(async () => {
+    if (!orderId) return
+
+    let mounted = true
+    let interval: NodeJS.Timeout
+
+    const pollStatus = async () => {
       try {
-        const res = await fetch(`/api/order/${orderId}/status`, { credentials: "include" });
-        const data = await res.json();
-        setStatus(data.status);
+        const res = await apiFetch(`/order/${orderId}/status`)
+
+        if (res.status === 401 || res.status === 403) {
+          clearInterval(interval)
+          return
+        }
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch order status")
+        }
+
+        const data = await res.json()
+        mounted && setStatus(data.status)
 
         if (data.status === "PAID") {
-          clearInterval(interval);
+          clearInterval(interval)
         }
       } catch (err) {
-        console.error("Failed to fetch order status", err);
+        console.error("Failed to fetch order status:", err)
       }
-    }, 3000);
+    }
 
-    return () => clearInterval(interval); // cleanup khi unmount
-  }, [orderId, router]);
+    interval = setInterval(pollStatus, 3000)
+    pollStatus() // run immediately
 
-  if (!qrData) return <div>Loading QR...</div>
+    return () => {
+      mounted = false
+      clearInterval(interval)
+    }
+  }, [orderId])
+
+  useEffect(() => {
+    if (qrData === null) {
+      setShowTableAlert(true)
+    } else {
+      setShowTableAlert(false)
+    }
+  }, [qrData])
+
 
   return (
     <>
-      {status === "PAID" ? (
+      {status === "Paid" ? (
         <PAID />
-      ) : status === "WAITING_PAYMENT" ? (
+      ) : status === "Waiting for Payment" ? (
         <WAITING_PAYMENT />
       ) : (
         <WAITING_QR />
       )}
+          {showTableAlert && (
+            <Alert variant={"danger"}>
+              <AlertTitle>Table Number Required</AlertTitle>
+              <AlertDescription>
+                Enter your table number to continue with your order.          
+                </AlertDescription>
+            </Alert>
+          )}
     </>
+    
   )
 }
       
