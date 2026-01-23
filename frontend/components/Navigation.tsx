@@ -19,10 +19,8 @@ type NavItem = {
 export default function Navigation({ cartItemCount }: NavigationProps) {
   const router = useRouter()
   const pathname = usePathname() // current URL path
-  
   const params = useParams()
   const orderId = params?.orderId as string | undefined
-  
   const { user, loading } = useAuth()
   if (loading || !user) return null
 
