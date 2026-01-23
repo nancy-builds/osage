@@ -4,6 +4,7 @@ from .config import Config
 from .extensions import db, migrate, bcrypt, socketio, login_manager
 from flask_cors import CORS
 
+
 def create_app():
     app = Flask(__name__)
 
@@ -24,13 +25,21 @@ def create_app():
     socketio.init_app(app, cors_allowed_origins="*")
     login_manager.init_app(app)
 
-    from seeds.seed_menu import seed_menu
-    from seeds.seed_reward import seed_rewards
-
     with app.app_context():
-        upgrade()         # auto flask db upgrade
-        seed_menu()       # seed menu
-        seed_rewards()    # seed rewards
+        try:
+            from flask_migrate import upgrade
+            upgrade()
+
+            from seeds.seed_menu import seed_menu
+            from seeds.seed_reward import seed_rewards
+
+            seed_menu()
+            seed_rewards()
+
+            print("✅ Migrations & seeds completed")
+
+        except Exception as e:
+            print("⚠️ Startup DB step skipped:", e)
 
     from .routes.auth import auth_bp
     from .routes.order import order_bp
