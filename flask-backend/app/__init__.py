@@ -26,7 +26,7 @@ def create_app():
     login_manager.init_app(app)
 
     with app.app_context():
-        if os.getenv("SEED_ON_STARTUP") == "true":
+        if os.getenv("SEED_ON_STARTUP") == "false":
             print("🔥 SEED_ON_STARTUP = TRUE")
 
             from flask_migrate import upgrade
