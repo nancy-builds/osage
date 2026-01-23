@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from .config import Config
 from .extensions import db, migrate, bcrypt, socketio, login_manager
@@ -8,7 +9,10 @@ def create_app():
 
     CORS(
         app,
-        origins=["https://osage-k7he.vercel.app"],
+        origins=[
+            "http://localhost:3000",
+            "https://osage-k7he.vercel.app"  # 👈 add prod frontend
+        ],
         supports_credentials=True
     )
 
@@ -20,12 +24,19 @@ def create_app():
     socketio.init_app(app, cors_allowed_origins="*")
     login_manager.init_app(app)
 
-    # 🔥 IMPORTANT: import models BEFORE create_all
+    # 🔥 import models BEFORE create_all
     from . import models
 
     with app.app_context():
         db.create_all()
 
+        # 🌱 SAFE SEEDING LOGIC
+        if (
+            app.config.get("ENV") != "production"
+            or os.getenv("SEED_ON_STARTUP") == "true"
+        ):
+            from seeds.seed_all import run_all
+            run_all()
 
     from .routes.auth import auth_bp
     from .routes.order import order_bp

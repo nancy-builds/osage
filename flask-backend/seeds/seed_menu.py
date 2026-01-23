@@ -128,35 +128,30 @@ MENU_ITEMS = [
     },
 ]
 
-def seed():
-    app = create_app()
-    with app.app_context():
-        # 🔥 DELETE DEPENDENT DATA FIRST
-        OrderItem.query.delete()
-        Product.query.delete()
-        db.session.commit()
 
-        categories_cache = {}
+def seed_menu():
+    if Product.query.first():
+        print("⚠️ Menu already exists, skipping")
+        return
 
-        for item in MENU_ITEMS:
-            category_name = item.pop("category")
+    categories_cache = {}
 
-            if category_name not in categories_cache:
-                category = Category.query.filter_by(name=category_name).first()
-                if not category:
-                    category = Category(name=category_name)
-                    db.session.add(category)
-                    db.session.flush()
-                categories_cache[category_name] = category
+    for item in MENU_ITEMS:
+        category_name = item.pop("category")
 
-            product = Product(
-                **item,
-                category_id=categories_cache[category_name].id
-            )
-            db.session.add(product)
+        if category_name not in categories_cache:
+            category = Category.query.filter_by(name=category_name).first()
+            if not category:
+                category = Category(name=category_name)
+                db.session.add(category)
+                db.session.flush()
+            categories_cache[category_name] = category
 
-        db.session.commit()
-        print("✅ Menu seeded successfully")
+        product = Product(
+            **item,
+            category_id=categories_cache[category_name].id
+        )
+        db.session.add(product)
 
-if __name__ == "__main__":
-    seed()
+    db.session.commit()
+    print("✅ Menu seeded")
