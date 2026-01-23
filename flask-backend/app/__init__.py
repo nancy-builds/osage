@@ -24,11 +24,7 @@ def create_app():
     socketio.init_app(app, cors_allowed_origins="*")
     login_manager.init_app(app)
 
-    # 🔥 import models BEFORE create_all
-    from . import models
 
-    with app.app_context():
-        db.create_all()
 
 
     from .routes.auth import auth_bp
