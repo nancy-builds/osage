@@ -25,23 +25,23 @@ def create_app():
     socketio.init_app(app, cors_allowed_origins="*")
     login_manager.init_app(app)
 
-with app.app_context():
-    if os.getenv("SEED_ON_STARTUP") == "true":
-        print("🔥 SEED_ON_STARTUP = TRUE")
+    with app.app_context():
+        if os.getenv("SEED_ON_STARTUP") == "true":
+            print("🔥 SEED_ON_STARTUP = TRUE")
 
-        from flask_migrate import upgrade
-        upgrade()
+            from flask_migrate import upgrade
+            upgrade()
 
-        from seeds.seed_menu import seed_menu
-        from seeds.seed_reward import seed_rewards
+            from seeds.seed_menu import seed_menu
+            from seeds.seed_reward import seed_rewards
 
-        print("🌱 Running seed_menu()")
-        seed_menu()
+            print("🌱 Running seed_menu()")
+            seed_menu()
 
-        print("🌱 Running seed_rewards()")
-        seed_rewards()
+            print("🌱 Running seed_rewards()")
+            seed_rewards()
 
-        print("✅ Seeding finished")
+            print("✅ Seeding finished")
 
     from .routes.auth import auth_bp
     from .routes.order import order_bp
