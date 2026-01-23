@@ -43,8 +43,8 @@ export default function Footer() {
 
     <div className="flex flex-col gap-3 text-xs text-muted-foreground pb-20">
       <div className="flex justify-center gap-4">
-        <Link href="/privacy" className="hover:text-primary">Privacy</Link>
-        <Link href="/terms" className="hover:text-primary">Terms</Link>
+        <Link href="/" className="hover:text-primary">Privacy</Link>
+        <Link href="/" className="hover:text-primary">Terms</Link>
       </div>
       <span>© 2025 Osage. All rights reserved.</span>
     </div>

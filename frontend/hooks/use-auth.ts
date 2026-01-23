@@ -13,7 +13,7 @@ export function useAuth() {
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/auth/profile`, {
-      credentials: "include", // IMPORTANT
+      credentials: "include",
     })
       .then(res => res.ok ? res.json() : null)
       .then(data => setUser(data))
