@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["gunicorn", "wsgi:app", "--worker-class", "eventlet", "--workers", "1", "--bind", "0.0.0.0:${PORT:-5000}"]
+CMD gunicorn wsgi:app --worker-class eventlet --workers 1 --bind 0.0.0.0:$PORT
