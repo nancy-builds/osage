@@ -2,7 +2,7 @@
 name = "osage-backend"
 version = "0.1.0"
 description = "Flask backend for Osage"
-authors = ["Sage myuniversityera@example.com>"]
+authors = ["Sage"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
