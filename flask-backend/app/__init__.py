@@ -23,10 +23,6 @@ def create_app():
     # 🔥 IMPORTANT: import models BEFORE create_all
     from . import models
 
-    # 🔥 FREE RENDER FIX: auto-create tables
-    with app.app_context():
-        db.create_all()
-
     from .routes.auth import auth_bp
     from .routes.order import order_bp
     from .routes.menu import menu_bp

@@ -1,10 +1,11 @@
-from .user import User
-from .order import Order
+from .user import User, user_rewards
+from .order import Order, OrderItem
 from .product import Product
 from .payment import Payment
 from .restaurant import Restaurant
 from .category import Category
 from .feedback import Feedback
+from .reward import Reward
 
 __all__ = [
     "User",
@@ -14,4 +15,5 @@ __all__ = [
     "Restaurant",
     "Category",
     "Feedback",
+    "Reward"
 ]

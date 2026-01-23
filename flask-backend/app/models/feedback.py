@@ -24,6 +24,5 @@ class Feedback(db.Model):
     rating = db.Column(db.Integer)
     comment = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
     order = db.relationship("Order", back_populates="feedback")
     
