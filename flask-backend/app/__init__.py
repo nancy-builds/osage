@@ -30,13 +30,6 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-        # 🌱 SAFE SEEDING LOGIC
-        if (
-            app.config.get("ENV") != "production"
-            or os.getenv("SEED_ON_STARTUP") == "true"
-        ):
-            from seeds.seed_all import run_all
-            run_all()
 
     from .routes.auth import auth_bp
     from .routes.order import order_bp
