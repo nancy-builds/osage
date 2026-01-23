@@ -24,8 +24,13 @@ def create_app():
     socketio.init_app(app, cors_allowed_origins="*")
     login_manager.init_app(app)
 
+    from seeds.seed_menu import seed_menu
+    from seeds.seed_reward import seed_rewards
 
-
+    with app.app_context():
+        upgrade()         # auto flask db upgrade
+        seed_menu()       # seed menu
+        seed_rewards()    # seed rewards
 
     from .routes.auth import auth_bp
     from .routes.order import order_bp
