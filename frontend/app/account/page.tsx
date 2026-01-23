@@ -1,13 +1,13 @@
 "use client"
 
-import { ProfileHeader, MenuItem } from "@/components/account/profile-header"
+import { ProfileHeader, MenuItem } from "../../components/account/profile-header"
 import { User, Settings, History, Loader2 , ClipboardList, Gift, LogOut, Image } from "lucide-react"
 import { useEffect, useState } from "react"
-import { formatTime } from '@/hooks/format-time'
-import { PageHeader } from "@/components/layout/PageHeader"
-import { apiFetch } from "@/lib/api"
-import ContentState from "@/components/layout/ContentState"
+import { formatTime } from '../../hooks/format-time'
+import { apiFetch } from "../../lib/api"
+import ContentState from "../../components/layout/ContentState"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
+
 type Profile = {
   full_name: string
   phone: string

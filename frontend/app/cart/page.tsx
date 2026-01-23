@@ -1,8 +1,8 @@
 "use client"
 
 import { useContext } from "react"
-import CartPage from "@/components/CartPage"
-import { CartContext } from "@/app/layout"
+import CartPage from "../../components/CartPage"
+import { CartContext } from "../../app/layout"
 
 export default function Cart() {
   const cartContext = useContext(CartContext)

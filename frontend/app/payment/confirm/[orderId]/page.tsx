@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { Clock, CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button"
-import { formatTime } from '@/hooks/format-time'
-import { API_BASE_URL, API_TIMEOUT } from "@/constants/api"
-import { formatPriceVND } from "@/hooks/format-price";
+import { Button } from "../../../../components/ui/button"
+import { formatTime } from '../../../../hooks/format-time'
+import { API_BASE_URL, API_TIMEOUT } from "../../../../constants/api"
+import { formatPriceVND } from "../../../../hooks/format-price";
 
 interface Order {
   order_id: string
@@ -44,7 +44,7 @@ useEffect(() => {
       console.log("Fetching order:", orderId)
 
       const res = await fetch(
-        `${API_BASE_URL}/order/${orderId}`,
+        `${API_BASE_URL}/api/order/${orderId}`,
         { credentials: "include" }
       )
 
@@ -78,7 +78,7 @@ useEffect(() => {
       console.log("Fetching order items:", orderId)
 
       const res = await fetch(
-        `${API_BASE_URL}/order/${orderId}/items`,
+        `${API_BASE_URL}/api/order/${orderId}/items`,
         { credentials: "include" }
       )
 
@@ -110,7 +110,7 @@ useEffect(() => {
 
     try {
       const res = await fetch(
-        `${API_BASE_URL}/order/payment/confirm/${orderId}`,
+        `${API_BASE_URL}/api/order/payment/confirm/${orderId}`,
         {
           method: "POST",
           credentials: "include",

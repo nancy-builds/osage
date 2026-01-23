@@ -1,7 +1,7 @@
 // app/feedback/page.tsx
 import Link from "next/link"
-import { PageHeader } from "@/components/layout/PageHeader"
-import ContentState from "@/components/layout/ContentState"
+import { PageHeader } from "../../components/layout/PageHeader"
+import ContentState from "../../components/layout/ContentState"
 
 export default function FeedbackNoOrderPage() {
   return (

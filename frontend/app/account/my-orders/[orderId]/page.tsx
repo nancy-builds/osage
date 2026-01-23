@@ -4,10 +4,10 @@ import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useState, useEffect } from "react"
-import { formatTime } from '@/hooks/format-time'
-import { apiFetch } from "@/lib/api"
-import ContentState from "@/components/layout/ContentState"
-import { formatPriceVND } from "@/hooks/format-price"
+import { formatTime } from '../../../../hooks/format-time'
+import { apiFetch } from "../../../../lib/api"
+import ContentState from "../../../../components/layout/ContentState"
+import { formatPriceVND } from "../../../../hooks/format-price"
 
 interface Order {
   order_id: string

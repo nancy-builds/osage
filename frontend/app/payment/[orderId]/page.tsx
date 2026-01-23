@@ -1,4 +1,4 @@
-import PaymentPage from "@/components/PaymentPage"
+import PaymentPage from "../../../components/PaymentPage"
 
 export default async function Payment({
   params,

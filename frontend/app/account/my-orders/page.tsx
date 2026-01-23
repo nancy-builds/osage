@@ -3,13 +3,13 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ShoppingBag, ChevronLeft, Utensils, Clock } from "lucide-react"
-import { EmptyState } from "@/components/account/empty-state"
-import { Badge } from "@/components/ui/badge"
-import { formatTime } from '@/hooks/format-time'
-import { formatPriceVND } from '@/hooks/format-price'
-import { apiFetch } from "@/lib/api"
-import { AccountPageHeader } from "@/components/layout/AccountPageHeader"
-import ContentState from "@/components/layout/ContentState"
+import { EmptyState } from "../../../components/account/empty-state"
+import { Badge } from "../../../components/ui/badge"
+import { formatTime } from '../../../hooks/format-time'
+import { formatPriceVND } from '../../../hooks/format-price'
+import { apiFetch } from "../../../lib/api"
+import { AccountPageHeader } from "../../../components/layout/AccountPageHeader"
+import ContentState from "../../../components/layout/ContentState"
 
 export interface Order {
   order_id: string

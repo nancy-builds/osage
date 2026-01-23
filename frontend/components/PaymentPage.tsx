@@ -4,11 +4,11 @@ import { useState } from "react"
 import { CreditCard, QrCode } from "lucide-react"
 import { useRouter } from 'next/navigation'
 import { useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { PageHeader } from "@/components/layout/PageHeader"
-import { formatPriceVND } from "@/hooks/format-price"
-import { API_BASE_URL, API_TIMEOUT } from "@/constants/api"
-import ContentState from "@/components/layout/ContentState"
+import { Button } from "../components/ui/button"
+import { PageHeader } from "../components/layout/PageHeader"
+import { formatPriceVND } from "../hooks/format-price"
+import { API_BASE_URL, API_TIMEOUT } from "../constants/api"
+import ContentState from "../components/layout/ContentState"
 import { AlertDescription, Alert, AlertTitle } from "./ui/alert"
 
 interface PaymentPageProps {
@@ -43,7 +43,7 @@ const [alertMessage, setAlertMessage] = useState("")
   useEffect(() => {
     if (!orderId) return
 
-    fetch(`${API_BASE_URL}/order/${orderId}`, {
+    fetch(`${API_BASE_URL}/api/order/${orderId}`, {
       credentials: "include",
     })
       .then(async (res) => {

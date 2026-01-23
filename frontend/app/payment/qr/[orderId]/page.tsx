@@ -4,11 +4,11 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import QRCode from "react-qr-code"
 import { MessageSquare } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { formatPriceVND } from '@/hooks/format-price'
-import { apiFetch } from "@/lib/api"
-import { AlertDescription, Alert, AlertTitle } from "@/components/ui/alert"
-import ContentState from "@/components/layout/ContentState"
+import { Button } from "../../../../components/ui/button"
+import { formatPriceVND } from '../../../../hooks/format-price'
+import { apiFetch } from "../../../../lib/api"
+import { AlertDescription, Alert, AlertTitle } from "../../../../components/ui/alert"
+import ContentState from "../../../../components/layout/ContentState"
 
 export default function QRPaymentPage() {
   const { orderId } = useParams()

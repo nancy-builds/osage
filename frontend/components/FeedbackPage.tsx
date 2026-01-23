@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { Star, Send } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { PageHeader } from "@/components/layout/PageHeader"
+import { Button } from "../components/ui/button"
+import { PageHeader } from "../components/layout/PageHeader"
 
 
 interface FeedbackPageProps {

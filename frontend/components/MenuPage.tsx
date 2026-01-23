@@ -2,11 +2,10 @@
 
 import { useState, useMemo, useEffect, useRef } from "react"
 import MenuCard from "./MenuCard"
-import { useRouter } from "next/navigation"
-import type { MenuItem } from "@/types"
+import type { MenuItem } from "../types"
 import { Search, User } from "lucide-react"
-import { apiFetch } from "@/lib/api"
-import ContentState from "@/components/layout/ContentState"
+import { apiFetch } from "../lib/api"
+import ContentState from "../components/layout/ContentState"
 
 interface MenuPageProps {
   onAddToCart: (item: MenuItem) => void

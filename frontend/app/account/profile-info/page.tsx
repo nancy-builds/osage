@@ -1,13 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
-import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { apiFetch } from "@/lib/api"
-import { AccountPageHeader } from "@/components/layout/AccountPageHeader"
+import { Button } from "../../../components/ui/button"
+import { apiFetch } from "../../../lib/api"
+import { AccountPageHeader } from "../../../components/layout/AccountPageHeader"
 
 type ProfileForm = {
   fullName: string

@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { apiFetch } from "@/lib/api"
-import { Button } from "@/components/ui/button"
+import { apiFetch } from "../lib/api"
+import { Button } from "../components/ui/button"
 import { CircleAlert } from "lucide-react"
 
 export default function LoginForm() {

@@ -8,7 +8,7 @@ def create_app():
 
     CORS(
         app,
-        origins=["http://localhost:3000"],  # we’ll update this later
+        origins=["https://osage-k7he.vercel.app"], 
         supports_credentials=True
     )
 

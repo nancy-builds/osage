@@ -1,12 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import MenuPage from "@/components/MenuPage"
-import CartPage from "@/components/CartPage"
-import PaymentPage from "@/components/PaymentPage"
-import FeedbackPage from "@/components/FeedbackPage"
-import Navigation from "@/components/Navigation"
-import type { MenuItem, CartItem } from "@/types"
+import MenuPage from "../components/MenuPage"
+import CartPage from "../components/CartPage"
+import PaymentPage from "../components/PaymentPage"
+import FeedbackPage from "../components/FeedbackPage"
+import Navigation from "../components/Navigation"
+import type { MenuItem, CartItem } from "../types"
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState<"menu" | "cart" | "payment" | "feedback">("menu")

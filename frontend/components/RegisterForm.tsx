@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { apiFetch } from "@/lib/api"
+import { apiFetch } from "../lib/api"
 import { CircleAlert } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import { Button } from "../components/ui/button"
 
 
 export default function RegisterForm() {

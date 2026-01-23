@@ -1,15 +1,14 @@
 "use client"
 
 import { Trash2, Minus, Plus, UtensilsCrossed  } from "lucide-react"
-import type { CartItem } from "@/types"
+import type { CartItem } from "../types"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { useParams } from "next/navigation"
-import { PageHeader } from "@/components/layout/PageHeader"
-import { formatPriceVND } from '@/hooks/format-price'
-import { apiFetch } from "@/lib/api"
-import ContentState from "@/components/layout/ContentState"
+import { Button } from "../components/ui/button"
+import { PageHeader } from "../components/layout/PageHeader"
+import { formatPriceVND } from '../hooks/format-price'
+import { apiFetch } from "../lib/api"
+import ContentState from "../components/layout/ContentState"
 import { AlertDescription, Alert, AlertTitle } from "./ui/alert"
 
 interface CartPageProps {

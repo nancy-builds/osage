@@ -1,14 +1,12 @@
 "use client"
 
-import Link from "next/link"
-import { SectionHeader } from "@/components/account/section-header"
-import { ChevronLeft } from "lucide-react"
+import { SectionHeader } from "../../../components/account/section-header"
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { apiFetch } from "@/lib/api"
-import ContentState from "@/components/layout/ContentState"
-import { AccountPageHeader } from "@/components/layout/AccountPageHeader"
+import { Button } from "../../../components/ui/button"
+import { Badge } from "../../../components/ui/badge"
+import { apiFetch } from "../../../lib/api"
+import ContentState from "../../../components/layout/ContentState"
+import { AccountPageHeader } from "../../../components/layout/AccountPageHeader"
 
 type Profile = {
   name: string

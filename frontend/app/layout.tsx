@@ -2,13 +2,12 @@
 
 import "./globals.css"
 import { Analytics } from "@vercel/analytics/next"
-import Footer from "@/components/Footer"
-import Navigation from "@/components/Navigation"
-import type { CartItem, MenuItem } from "@/types"
+import Footer from "../components/Footer"
+import Navigation from "../components/Navigation"
+import type { CartItem, MenuItem } from "../types"
 import { ReactNode, useState, createContext } from "react"
 import { useRouter } from "next/navigation"
-import { API_BASE_URL } from "@/constants/api"
-import { apiFetch } from "@/lib/api"
+import { apiFetch } from "../lib/api"
 import { SettingsProvider } from "./providers/SettingsProvider"
 
 interface RootLayoutProps {

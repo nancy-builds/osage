@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { badgeVariants, Badge } from "@/components/ui/badge"
-import { formatTime } from '@/hooks/format-time'
+import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar"
+import { Badge } from "../../components/ui/badge"
+import { formatTime } from '../../hooks/format-time'
 
 
 export interface ProfileHeaderProps {
@@ -93,10 +93,6 @@ export function ProfileHeader({ full_name, phone, avatar_url, membership_level, 
                 </>
               )}
             </div>
-
-
-
-
           </div>
         </div>
       </div>

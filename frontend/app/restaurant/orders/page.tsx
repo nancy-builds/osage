@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ClipboardList } from "lucide-react"
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { formatTime } from '@/hooks/format-time'
-import { PageHeader } from "@/components/layout/PageHeader"
-import { apiFetch } from "@/lib/api"
-import { formatPriceVND } from "@/hooks/format-price"
-import { API_BASE_URL, API_TIMEOUT } from "@/constants/api"
+import { Card, CardContent } from '../../../components/ui/card'
+import { Badge } from '../../../components/ui/badge'
+import { Button } from '../../../components/ui/button'
+import { formatTime } from '../../../hooks/format-time'
+import { PageHeader } from "../../../components/layout/PageHeader"
+import { apiFetch } from "../../../lib/api"
+import { formatPriceVND } from "../../../hooks/format-price"
+import { API_BASE_URL, API_TIMEOUT } from "../../../constants/api"
 import Link from "next/link"
 type Order = {
   order_id: string
@@ -76,7 +76,7 @@ useEffect(() => {
       setLoadingId(orderId)
 
       const res = await fetch(
-        `${API_BASE_URL}/order/${orderId}/done`,
+        `${API_BASE_URL}/api/order/${orderId}/done`,
         {
           method: "POST",
           credentials: "include",

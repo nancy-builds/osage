@@ -17,6 +17,10 @@ def load_user(user_id):
     except Exception:
         return None
 
+@app.route("/api/health")
+def health():
+    return {"status": "ok"}
+
 @auth_bp.post("/register")
 def register():
     try:

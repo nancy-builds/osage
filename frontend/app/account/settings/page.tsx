@@ -1,11 +1,10 @@
 "use client"
 
-import Link from "next/link"
-import { ChevronLeft, Sun, Moon, Globe } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Select, SelectTrigger, SelectValue, SelectItem, SelectContent } from "@/components/ui/select"
-import { AccountPageHeader } from "@/components/layout/AccountPageHeader"
-import { useSettings } from "@/app/providers/SettingsProvider"
+import { Sun, Moon, Globe } from "lucide-react"
+import { Button } from "../../../components/ui/button"
+import { Select, SelectTrigger, SelectValue, SelectItem, SelectContent } from "../../../components/ui/select"
+import { AccountPageHeader } from "../../../components/layout/AccountPageHeader"
+import { useSettings } from "../../../app/providers/SettingsProvider"
 
 export default function SettingsPage() {
   const {
