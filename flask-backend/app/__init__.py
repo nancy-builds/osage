@@ -12,17 +12,29 @@ def create_app():
         app,
         origins=[
             "http://localhost:3000",
-            "https://osage-k7he.vercel.app"  # 👈 add prod frontend
+            "https://osage-k7he.vercel.app"
         ],
-        supports_credentials=True
+        supports_credentials=True,
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization"]
     )
+
 
     app.config.from_object(Config)
 
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
-    socketio.init_app(app, cors_allowed_origins="*")
+
+    socketio.init_app(
+        app,
+        cors_allowed_origins=[
+            "http://localhost:3000",
+            "https://osage-k7he.vercel.app"
+        ]
+    )
+
+    
     login_manager.init_app(app)
 
     with app.app_context():
