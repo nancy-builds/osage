@@ -19,15 +19,12 @@ def load_user(user_id):
 
 
 
-@auth_bp.route("/seed", methods=["POST"])
+@auth_bp.route("/seed", methods=["GET"])
 def seed_all():
     try:
-        data = request.get_json(silent=True) or {}
-
         seed_menu()
         seed_rewards()
         db.session.commit()
-
         return jsonify({"message": "🌱 Seeding completed"}), 200
     except Exception as e:
         db.session.rollback()
