@@ -21,16 +21,16 @@ def load_user(user_id):
 
 
 
-# @auth_bp.route("/seed", methods=["GET"])
-# def seed_all():
-#     try:
-#         seed_menu()
-#         seed_rewards()
-#         db.session.commit()
-#         return jsonify({"message": "🌱 Seeding completed"}), 200
-#     except Exception as e:
-#         db.session.rollback()
-#         return jsonify({"error": str(e)}), 500
+@auth_bp.route("/seed", methods=["GET"])
+def seed_all():
+    try:
+        seed_menu()
+        seed_rewards()
+        db.session.commit()
+        return jsonify({"message": "🌱 Seeding completed"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 
 
