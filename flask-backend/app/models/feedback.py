@@ -18,7 +18,7 @@ class Feedback(db.Model):
     user_id = db.Column(
         db.UUID(as_uuid=True),
         db.ForeignKey("users.id"),
-        nullable=False
+        nullable=True
     )
 
     rating = db.Column(db.Integer)

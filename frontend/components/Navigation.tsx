@@ -22,9 +22,8 @@ export default function Navigation({ cartItemCount }: NavigationProps) {
   const params = useParams()
   const orderId = params?.orderId as string | undefined
   const { user, loading } = useAuth()
-  if (loading || !user) return null
 
-  const userRole = user.role.toUpperCase()
+  const userRole = user?.role?.toUpperCase() ?? "GUEST"
 
 
   const customerNavItems: NavItem[] = [

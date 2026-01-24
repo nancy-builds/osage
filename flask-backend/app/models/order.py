@@ -12,9 +12,8 @@ class Order(db.Model):
     user_id = db.Column(
         db.UUID(as_uuid=True),
         db.ForeignKey("users.id"),
-        nullable=False
+        nullable=True
     )
-
 
     status = db.Column(
         db.String(30),

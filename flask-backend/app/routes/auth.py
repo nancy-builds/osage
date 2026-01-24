@@ -1,6 +1,6 @@
 from flask import request, jsonify, Blueprint
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, login_required, current_user
+from flask_login import login_user, login_required, current_user, logout_user
 from ..extensions import db, login_manager
 from ..models.user import User
 import uuid
@@ -186,3 +186,9 @@ def update_profile():
         }
     }), 200
 
+
+@auth_bp.route("/logout", methods=["POST"])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({"message": "Logged out successfully"}), 200

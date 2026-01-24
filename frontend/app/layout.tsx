@@ -20,7 +20,6 @@ interface CartContextType {
   addToCart: (item: MenuItem) => void
   updateQuantity: (itemId: string, quantity: number) => void
   removeItem: (itemId: string) => void
-  checkout: () => Promise<void>
 }
 
 export const CartContext = createContext<CartContextType | null>(null)
@@ -65,39 +64,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
     setCart(prev => prev.filter(item => item.id !== itemId))
   }
 
-  const checkout = async () => {
-    if (cart.length === 0) return
-
-    setLoading(true)
-
-    try {
-      const res = await apiFetch("/order", {
-        method: "POST",
-        body: JSON.stringify({
-          items: cart.map(item => ({
-            product_id: item.id,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-        }),
-      })
-      if (res.status === 401) {
-        router.push("/login")
-        return
-      }
-      if (!res.ok) {
-        throw new Error("Checkout failed")
-      }
-
-      setCart([])
-      alert("Order placed successfully!")
-    } catch (err) {
-      console.error(err)
-      alert("Failed to place order")
-    } finally {
-      setLoading(false)
-    }
-  }
   return (
     <html lang="en">
       <head>
@@ -120,7 +86,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
               addToCart,
               updateQuantity,
               removeItem,
-              checkout,
             }}
           >
           {children}

@@ -17,8 +17,6 @@ order_bp = Blueprint("order", __name__)
 from ..models.restaurant import Restaurant
 
 @order_bp.route("", methods=["POST"])
-@login_required
-@role_required(Roles.CUSTOMER)
 def place_order():
     data = request.get_json()
     if not data:
@@ -31,7 +29,6 @@ def place_order():
 
     try:
         order = Order(
-            user_id=current_user.id,
             status=OrderStatus.PENDING.value,
             total=Decimal("0.00"),
             table_number=data.get("table_number")
@@ -58,23 +55,6 @@ def place_order():
             db.session.add(order_item)
 
         order.total = total
-
-        # 🔥 Loyalty points
-        if total >= Decimal("50"):
-            multiplier = Decimal("1.5")
-        elif total >= Decimal("20"):
-            multiplier = Decimal("1.2")
-        else:
-            multiplier = Decimal("1.0")
-
-        points_earned = int(total * multiplier)
-
-        if current_user.loyalty_points is None:
-            current_user.loyalty_points = 0
-
-        current_user.loyalty_points += points_earned
-        order.points_earned = points_earned
-
         db.session.commit()
 
         return jsonify({
@@ -82,8 +62,6 @@ def place_order():
             "total": str(order.total),
             "status": order.status,
             "table_number": order.table_number,
-            "points_earned": points_earned,
-            "total_loyalty_points": current_user.loyalty_points,
         }), 201
 
     except Exception as e:
@@ -96,12 +74,9 @@ def place_order():
 
 
 @order_bp.route("/payment/qr/<uuid:order_id>", methods=["GET"])
-@login_required
-@role_required(Roles.CUSTOMER)
 def get_payment_qr(order_id):
     order = Order.query.filter_by(
         id=order_id,
-        user_id=current_user.id
     ).first_or_404()
     
     # ✅ Check if a Payment already exists for this order
@@ -136,9 +111,7 @@ def get_payment_qr(order_id):
 
 
 @order_bp.route("/<uuid:order_id>/status", methods=["GET"])
-@login_required
 def get_order_status(order_id):
-    # Find the order for this user
     order = Order.query.filter_by(id=order_id).first()
     
     # Return the status as a string
@@ -149,7 +122,6 @@ def get_order_status(order_id):
 
 
 @order_bp.route("/<uuid:order_id>", methods=["GET"])
-@login_required
 def get_order(order_id):
     order = Order.query.filter_by(id=order_id).first_or_404()
 
@@ -159,12 +131,10 @@ def get_order(order_id):
         "total": order.total,
         "created_at": order.created_at.isoformat(),
         "table_number": order.table_number,
-        "points_earned": order.points_earned,  # ✅ THIS WAS MISSING
-
     })
 
+
 @order_bp.route("/<uuid:order_id>/items", methods=["GET"])
-@login_required
 def get_order_items(order_id):
     order = Order.query.filter_by(id=order_id).first_or_404()
 
@@ -182,6 +152,7 @@ def get_order_items(order_id):
             for item in order.items
         ]
     })
+
 
 @order_bp.route("/my-orders", methods=["GET"])
 @login_required
@@ -204,6 +175,7 @@ def get_all_orders():
         }
         for order in orders
     ])
+
 
 @order_bp.route("/restaurant/orders", methods=["GET"])
 @login_required

@@ -7,6 +7,8 @@ import { formatTime } from '../../hooks/format-time'
 import { apiFetch } from "../../lib/api"
 import ContentState from "../../components/layout/ContentState"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
+import { useRouter } from "next/navigation"
+import { API_BASE_URL } from "@/constants/api"
 
 type Profile = {
   full_name: string
@@ -21,6 +23,20 @@ type Profile = {
 export default function AccountPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
+const handleLogout = async () => {
+  try {
+    await fetch(`${API_BASE_URL}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    setProfile(null);      // ✅ clear user state immediately
+    router.push("/login"); // ✅ redirect
+  } catch (err) {
+    console.error("Logout failed", err);
+  }
+};
 
   useEffect(() => {
     let mounted = true
@@ -132,11 +148,11 @@ return (
           {/* Logout */}
           <div className="bg-card border border-border rounded-lg m-6">
             <MenuItem
-              icon={<LogOut size={20} />}
-              label="Log Out"
-              href="/login"
-              variant="destructive"
-            />
+  icon={<LogOut size={20} />}
+  label="Log Out"
+  variant="destructive"
+  onClick={handleLogout}
+/>
           </div>
         </div>
         

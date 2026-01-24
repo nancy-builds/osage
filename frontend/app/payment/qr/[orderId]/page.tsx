@@ -15,8 +15,6 @@ export default function QRPaymentPage() {
   const router = useRouter()
   const [qrData, setQrData] = useState<any>(null)
   const [status, setStatus] = useState<string>("")
-  const [pointsEarned, setPointsEarned] = useState<number>(0)
-  const [totalLoyaltyPoints, setTotalLoyaltyPoints] = useState<number>(0)
 const [showTableAlert, setShowTableAlert] = useState(false)
 
   useEffect(() => {
@@ -29,8 +27,6 @@ const [showTableAlert, setShowTableAlert] = useState(false)
         const res = await apiFetch(`/order/${orderId}`)
 
         if (res.status === 401 || res.status === 403) {
-          mounted && setPointsEarned(0)
-          mounted && setTotalLoyaltyPoints(0)
           mounted && setStatus(null)
           return
         }
@@ -40,9 +36,6 @@ const [showTableAlert, setShowTableAlert] = useState(false)
         }
 
         const data = await res.json()
-
-        mounted && setPointsEarned(data.points_earned ?? 0)
-        mounted && setTotalLoyaltyPoints(data.user?.loyalty_points ?? 0)
         mounted && setStatus(data.status)
       } catch (err) {
         console.error(err)
@@ -101,30 +94,6 @@ const [showTableAlert, setShowTableAlert] = useState(false)
   const PAID = () => {
     useEffect(() => {
       let mounted = true
-
-      const loadLoyaltyPoints = async () => {
-        try {
-          const res = await apiFetch("/auth/profile")
-
-          if (res.status === 401) {
-            mounted && setTotalLoyaltyPoints(0)
-            return
-          }
-
-          if (!res.ok) {
-            throw new Error("Failed to load profile")
-          }
-
-          const user = await res.json()
-          mounted && setTotalLoyaltyPoints(user.loyalty_points ?? 0)
-        } catch (err) {
-          console.error(err)
-          mounted && setTotalLoyaltyPoints(0)
-        }
-      }
-
-      loadLoyaltyPoints()
-
       return () => {
         mounted = false
       }
@@ -170,22 +139,6 @@ const [showTableAlert, setShowTableAlert] = useState(false)
               Your order is confirmed and is being prepared.
             </p>
 
-            {/* Loyalty Points */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
-              <p className="text-sm text-green-700 font-medium">
-                🎉 Loyalty Points Earned
-              </p>
-
-              <div className="text-3xl font-bold text-green-600 mt-1">
-                +{pointsEarned}
-              </div>
-
-              <p className="text-xs text-green-700 mt-1">
-                Total points: <span className="font-semibold">{totalLoyaltyPoints}</span>
-              </p>
-            </div>
-            
-            
             <div className="flex flex-col gap-2 mt-6">
 
               {/* Optional Button */}
