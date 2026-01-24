@@ -147,8 +147,6 @@ def profile():
     }), 200
 
 
-
-
 @auth_bp.put("/profile-info")
 @login_required
 def update_profile():
