@@ -7,6 +7,8 @@ import uuid
 from datetime import datetime
 from ..constants.roles import Roles
 from ..utils.permissions import role_required
+from seeds.seed_menu import seed_menu
+from seeds.seed_reward import seed_rewards
 
 auth_bp = Blueprint("auth", __name__)
 
