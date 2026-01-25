@@ -1,11 +1,3 @@
-import os
-from flask import Flask
-from .config import Config
-from .extensions import db, migrate, bcrypt, socketio, login_manager
-from flask_cors import CORS
-from flask_migrate import upgrade
-
-
 def create_app():
     app = Flask(__name__)
 
@@ -25,33 +17,16 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
-
-    socketio.init_app(
-        app,
-        cors_allowed_origins=[
-            "http://localhost:3000",
-            "https://osage-k7he.vercel.app"
-        ]
-    )
-
+    socketio.init_app(app, cors_allowed_origins="*")
     login_manager.init_app(app)
 
-    with app.app_context():
-        # ✅ ALWAYS apply migrations
-        print("⬆️ Running database migrations")
-        upgrade()
-
-        # 🌱 Seed only if explicitly enabled
-        if os.getenv("SEED_ON_STARTUP") == "true":
-            print("🌱 Seeding enabled")
-
+    # 🌱 Seed only if explicitly enabled (optional)
+    if os.getenv("SEED_ON_STARTUP") == "true":
+        with app.app_context():
             from seeds.seed_menu import seed_menu
             from seeds.seed_reward import seed_rewards
-
             seed_menu()
             seed_rewards()
-
-            print("✅ Seeding finished")
 
     from .routes.auth import auth_bp
     from .routes.order import order_bp
