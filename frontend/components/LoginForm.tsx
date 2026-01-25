@@ -54,7 +54,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 }
 
   return (
-    <div className="max-w-md w-full bg-white rounded-xl border p-8">
+    <div className="max-w-md w-full rounded-xl border p-8">
       <h2 className="text-3xl font-bold mb-2">Login</h2>
       <p className="text-gray-500 text-sm mb-8">
         Sign in to unlock exclusive discounts for your next meal.
@@ -71,7 +71,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
         {/* Phone */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-sm font-semibold mb-2">
             Phone number
           </label>
           <input
@@ -87,7 +87,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
         {/* Password */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-sm font-semibold mb-2">
             Password
           </label>
           <input
