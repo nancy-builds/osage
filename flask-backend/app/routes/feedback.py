@@ -17,12 +17,8 @@ feedback_bp = Blueprint("feedback", __name__)
 def submit_feedback(order_id):
     order = Order.query.get_or_404(order_id)
 
-    # 1️⃣ Only owner can feedback
-    if order.user_id != current_user.id:
-        return jsonify({"message": "Unauthorized"}), 403
-
     # 2️⃣ Only COMPLETED orders (assuming PAID means still processing)
-    if order.status != OrderStatus.COMPLETED.value:
+    if order.status != OrderStatus.PAID.value:
         return jsonify({"message": "Order not completed yet"}), 400
 
     # 3️⃣ Prevent duplicate feedback
@@ -40,7 +36,7 @@ def submit_feedback(order_id):
     )
 
     # 🔥 Loyalty points logic
-    total = Decimal(order.total_amount)
+    total = Decimal(order.total)
 
     if total >= Decimal("50"):
         multiplier = Decimal("1.5")

@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import { apiFetch } from "../lib/api"
 import { Button } from "../components/ui/button"
 import { CircleAlert } from "lucide-react"
+import { useSearchParams } from "next/navigation"
 
 export default function LoginForm() {
   const router = useRouter()
@@ -14,6 +15,9 @@ export default function LoginForm() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const searchParams = useSearchParams()
+const redirect = searchParams.get("redirect") || "/feedback"
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -29,7 +33,6 @@ const handleSubmit = async (e: React.FormEvent) => {
       method: "POST",
       body: JSON.stringify(form),
     })
-
     let data: any = null
     try {
       data = await res.json()
@@ -42,7 +45,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
 
     alert("Login successful!")
-    router.push("/feedback")
+    router.push(redirect)
   } catch (err: any) {
     setError(err.message || "Network error. Please try again.")
   } finally {

@@ -55,13 +55,13 @@ const [isLoggedIn, setIsLoggedIn] = useState(false)
       if (!res.ok) return
       const data = await res.json()
       setSubmitted(true)
+      router.push(`/feedback/${orderId}/success`)
 
       // 🌟 Loyalty updates
       setPointsEarned(data.points_earned ?? 0)
       setTotalLoyaltyPoints(data.user?.loyalty_points ?? totalLoyaltyPoints)
 
-      // Optional redirect delay
-      setTimeout(() => router.push("/menu"), 3000)
+
     } finally {
       setLoading(false)
     }
@@ -100,30 +100,16 @@ const [isLoggedIn, setIsLoggedIn] = useState(false)
   return (
     <>
        <FeedbackPage
-      loading={loading}
-      submitted={submitted}
-      orderPaid={orderPaid} 
-      checking={checking}
-      onSubmit={submitFeedback}
-      onBack={() => router.push("/menu")}
-      isLoggedIn={isLoggedIn}   // 👈 add this
+         orderId={orderId}        // 👈 ADD THIS
+        loading={loading}
+        submitted={submitted}
+        orderPaid={orderPaid} 
+        checking={checking}
+        onSubmit={submitFeedback}
+        onBack={() => router.push("/menu")}
+        isLoggedIn={isLoggedIn}   // 👈 add this
 
     />
-    {submitted && (
-  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
-    <p className="text-sm text-green-700 font-medium">
-      🎉 Loyalty Points Earned
-    </p>
-
-    <div className="text-3xl font-bold text-green-600 mt-1">
-      +{pointsEarned}
-    </div>
-
-    <p className="text-xs text-green-700 mt-1">
-      Total points: <span className="font-semibold">{totalLoyaltyPoints}</span>
-    </p>
-  </div>
-)}
 </>
 
   )

@@ -1,11 +1,16 @@
-"use client"
+import { use } from "react"
+import LoginForm from "@/components/LoginForm"
 
-import LoginForm from "../../../components/LoginForm"
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect?: string }>
+}) {
+  const { redirect } = use(searchParams) // ✅ unwrap here
 
-export default function LoginPage() {
   return (
     <main className="flex items-start justify-center my-10">
-      <LoginForm />
+      <LoginForm redirect={redirect} />
     </main>
   )
 }

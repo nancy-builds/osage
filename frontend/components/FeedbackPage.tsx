@@ -8,6 +8,7 @@ import ContentState from "./layout/ContentState"
 import { AlertDescription, Alert, AlertTitle } from "../components/ui/alert"
 import Link from "next/link"
 interface FeedbackPageProps {
+  orderId: string
   onBack: () => void
   onSubmit: (rating: number, comment: string) => Promise<void>
   loading: boolean
@@ -23,6 +24,7 @@ type AlertData = {
 }
 
 export default function FeedbackPage({
+  orderId,
   onBack,
   onSubmit,
   loading,
@@ -52,25 +54,6 @@ const [alertData, setAlertData] = useState<{
 
   if (checking) {
     return <ContentState isLoading />
-  }
-
-
-
-  if (submitted) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen max-w-lg mx-auto">
-        <div className="text-center">
-          <div className="text-4xl mb-4">✨</div>
-          <h2 className="text-2xl font-bold mb-2">Thank You!</h2>
-          <p className="text-muted-foreground">
-            Your feedback has been recorded
-          </p>
-          <p className="text-xs text-muted-foreground mt-4">
-            Redirecting...
-          </p>
-        </div>
-      </div>
-    )
   }
 
 const handleSubmit = async () => {
@@ -160,7 +143,7 @@ const handleSubmit = async () => {
 
                   {alertData.action === "login" && (
                     <Link
-                      href="/login"
+    href={`/login?redirect=/feedback/${orderId}`}
                       className="text-sm font-medium text-primary hover:underline whitespace-nowrap"
                     >
                       logging in
