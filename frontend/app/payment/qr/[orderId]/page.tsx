@@ -117,14 +117,14 @@ export default function QRPaymentPage() {
           </p>
         </div>
         {/* Card */}
-        <div className="flex items-center justify-center bg-gray-50 py-10">
-          <div className="bg-white rounded-xl shadow-sm max-w-md w-full p-8 text-center space-y-5">
+        <div className="flex items-center justify-center py-10">
+          <div className="rounded-xl shadow-sm max-w-md w-full p-8 text-center space-y-5">
             
             {/* Success Icon */}
             <div className="flex justify-center">
-              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+              <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
                 <svg
-                  className="h-6 w-6 text-green-600"
+                  className="h-6 w-6 text-green-600 dark:text-green-300"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -140,10 +140,10 @@ export default function QRPaymentPage() {
             </div>
 
             {/* Main Message */}
-            <h1 className="text-xl font-semibold text-gray-800">
+            <h1 className="text-xl font-semibold">
               Payment Successful
             </h1>
-            <p className="text-gray-600 text-sm">
+            <p className="text-sm">
               Your order is confirmed and is being prepared.
             </p>
 
@@ -161,7 +161,7 @@ export default function QRPaymentPage() {
               {/* Instructions */}
               <div className="text-xs text-gray-500">
                 <p>Please take a moment to leave us your feedback for better experience
-                  <span className="font-medium text-gray-800"> we truly appreciate it.</span>
+                  <span className="font-medium"> we truly appreciate it.</span>
                 </p>
               </div>
             </div>
@@ -175,8 +175,17 @@ export default function QRPaymentPage() {
 
   const WAITING_QR = () => {
     return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <ContentState  isEmpty={true} emptyText="Generating QR Code" emptyDescription="Your payment QR code will appear in a moment"/>
+      <div className="pb-24 max-w-lg mx-auto">
+        {/* Header */}
+        <div className="sticky top-0 border-b border-border p-4 z-10">
+          <h1 className="text-2xl font-bold text-foreground">Scan to Pay</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Use your banking app to scan the QR code below
+          </p>
+        </div>
+        <div className="flex items-center justify-center py-10">
+          <ContentState isEmpty={true} emptyText="Generating QR Code" emptyDescription="Your payment QR code will appear in a moment"/>
+        </div>
     </div>
     )
   }
@@ -272,14 +281,6 @@ export default function QRPaymentPage() {
       ) : (
         <WAITING_QR />
       )}
-          {showTableAlert && (
-            <Alert variant={"danger"}>
-              <AlertTitle>Table Number Required</AlertTitle>
-              <AlertDescription>
-                Enter your table number to continue with your order.          
-                </AlertDescription>
-            </Alert>
-          )}
     </>
     
   )

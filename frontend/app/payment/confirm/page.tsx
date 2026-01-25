@@ -2,13 +2,13 @@ import { Clock } from "lucide-react"
 
 export default function NoOrdersYet() {
   return (
-    <div className="pb-28 max-w-lg mx-auto bg-gray-50 min-h-screen">
+    <div className="pb-28 max-w-lg mx-auto min-h-screen">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b p-4 z-10">
-            <h1 className="text-xl font-bold text-gray-900">
+        <div className="sticky top-0 border-b p-4 z-10">
+            <h1 className="text-xl font-bold">
                 Confirm Payment
             </h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm mt-1">
                 Confirm only after receiving cash from the customer
             </p>
         </div>

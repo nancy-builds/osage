@@ -106,7 +106,7 @@ export default function RestaurantOrdersPage() {
 
   if (orders.length === 0) {
     return (
-      <div className="pb-28 max-w-lg mx-auto bg-gray-50 min-h-screen">
+      <div className="pb-28 max-w-lg mx-auto min-h-screen">
         {/* Header */}
         <PageHeader
           title="Orders"
@@ -124,7 +124,7 @@ export default function RestaurantOrdersPage() {
   }
 
   return (
-    <div className="pb-28 max-w-lg mx-auto bg-gray-50 min-h-screen">
+    <div className="pb-28 max-w-lg mx-auto min-h-screen">
       <PageHeader
         title="Orders"
         description="All customer orders are listed here for your review"

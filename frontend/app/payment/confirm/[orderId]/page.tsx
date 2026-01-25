@@ -7,6 +7,7 @@ import { Button } from "../../../../components/ui/button"
 import { formatTime } from '../../../../hooks/format-time'
 import { API_BASE_URL, API_TIMEOUT } from "../../../../constants/api"
 import { formatPriceVND } from "../../../../hooks/format-price";
+import { calculateFinalTotal } from "../../../../constants/pricing";
 
 interface Order {
   order_id: string
@@ -33,7 +34,7 @@ export default function ConfirmPaymentPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-const [items, setItems] = useState<any[]>([])
+  const [items, setItems] = useState<any[]>([])
 
   /* Fetch order */
 useEffect(() => {
@@ -156,26 +157,30 @@ useEffect(() => {
   }
 
 return (
-  <div className="pb-28 max-w-lg mx-auto bg-gray-50 min-h-screen">
+  <div className="pb-28 max-w-lg mx-auto min-h-screen">
     {/* Header */}
-    <div className="sticky top-0 bg-white border-b p-4 z-10">
-      <h1 className="text-xl font-bold text-gray-900">
+    <div className="sticky top-0 border-b p-4 z-10">
+      <h1 className="text-xl font-bold">
         Confirm Payment
       </h1>
-      <p className="text-sm text-gray-500 mt-1">
+      <p className="text-sm mt-1">
         Confirm only after receiving cash from the customer
       </p>
     </div>
 
-    <div className="px-4 pt-6">
-      <div className="bg-white rounded-2xl shadow-sm p-6 space-y-6">
+    <div className="px-4 pt-1">
+      <div className="rounded-2xl shadow-sm p-6 space-y-6">
 
         {/* Status (directly under title) */}
         {order && (
           <>
-            {order.status === "WAITING_PAYMENT" && (
+            {order.status === "Waiting for Payment" && (
               
-              <div className="rounded-lg bg-yellow-50 px-4 py-3 text-sm text-yellow-700">
+              <div className="
+                rounded-lg px-4 py-3 text-sm
+                bg-yellow-50 text-yellow-700
+                dark:bg-yellow-900/30 dark:text-yellow-300
+              ">
                 <span className="flex items-center gap-1 text-yellow-500">
                   <Clock size={18} /> Waiting for Payment
                 </span>
@@ -184,7 +189,11 @@ return (
             )}
 
             {success && (
-              <div className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+              <div className="
+                rounded-lg px-4 py-3 text-sm
+                bg-green-50 text-green-700
+                dark:bg-green-900/30 dark:text-green-300
+              ">
                 <span className="flex items-center gap-1 text-green-500">
                   <CheckCircle size={18} /> Paid
                 </span>
@@ -239,7 +248,7 @@ return (
               Total
             </span>
             <span className="text-base font-bold text-primary">
-              {formatPriceVND(order.total)}
+                      {formatPriceVND(calculateFinalTotal(Math.round(Number(order.total))))}
             </span>
           </div>
         )}
