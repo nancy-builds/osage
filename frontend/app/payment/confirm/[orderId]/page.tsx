@@ -8,7 +8,7 @@ import { formatTime } from '../../../../hooks/format-time'
 import { API_BASE_URL, API_TIMEOUT } from "../../../../constants/api"
 import { formatPriceVND } from "../../../../hooks/format-price";
 import { calculateFinalTotal } from "../../../../constants/pricing";
-
+import { PageHeader } from "../../../../components/layout/PageHeader";
 interface Order {
   order_id: string
   status: string
@@ -159,14 +159,11 @@ useEffect(() => {
 return (
   <div className="pb-28 max-w-lg mx-auto min-h-screen">
     {/* Header */}
-    <div className="sticky top-0 border-b p-4 z-10">
-      <h1 className="text-xl font-bold">
-        Confirm Payment
-      </h1>
-      <p className="text-sm mt-1">
-        Confirm only after receiving cash from the customer
-      </p>
-    </div>
+
+            <PageHeader
+              title="Confirm Payment"
+              description="Confirm only after receiving cash from the customer"
+            />
 
     <div className="px-4 pt-1">
       <div className="rounded-2xl shadow-sm p-6 space-y-6">

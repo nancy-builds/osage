@@ -1,17 +1,13 @@
 import { Clock } from "lucide-react"
-
+import { PageHeader } from "../../../components/layout/PageHeader"
 export default function NoOrdersYet() {
   return (
     <div className="pb-28 max-w-lg mx-auto min-h-screen">
         {/* Header */}
-        <div className="sticky top-0 border-b p-4 z-10">
-            <h1 className="text-xl font-bold">
-                Confirm Payment
-            </h1>
-            <p className="text-sm mt-1">
-                Confirm only after receiving cash from the customer
-            </p>
-        </div>
+        <PageHeader
+        title="Confirm Payment"
+        description="Confirm only after receiving cash from the customer"
+        />
         
         <div className="flex flex-col items-center justify-center h-[70vh] text-center px-4">
             {/* Icon */}

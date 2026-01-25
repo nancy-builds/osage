@@ -7,7 +7,7 @@ import { Badge } from "../../../components/ui/badge"
 import { apiFetch } from "../../../lib/api"
 import ContentState from "../../../components/layout/ContentState"
 import { AccountPageHeader } from "../../../components/layout/AccountPageHeader"
-
+import { PageHeader } from "../../../components/layout/PageHeader"
 type Profile = {
   name: string
   phone: string
@@ -86,11 +86,23 @@ export default function RewardsPage() {
   }
 
   if (!profile) {
-    return <ContentState isEmpty emptyText="No rewards found" emptyDescription="No rewards available right now"/>
+    return (
+        <div className="pb-28 max-w-lg mx-auto min-h-screen">
+          {/* Header */}
+      
+          <PageHeader
+            title="Redeem Rewards"
+            description="Choose a reward below and enjoy the perks you’ve earned."
+          />
+          <ContentState isEmpty emptyText="No rewards found" emptyDescription="No rewards available right now"/>
+        </div>
+    )
   }
   
   if (loading) {
-    return <ContentState isLoading/>
+    return (
+    <ContentState isLoading/>
+    )
   }
 
 
