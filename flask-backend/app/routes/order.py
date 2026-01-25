@@ -106,7 +106,6 @@ def get_payment_qr(order_id):
             "account_name": BankInfo.ACCOUNT_NAME
         },
         "transfer_content": payment_reference,
-        "qr_string": f"VCB|0123456789|{order.total}|{payment_reference}"
     })
 
 

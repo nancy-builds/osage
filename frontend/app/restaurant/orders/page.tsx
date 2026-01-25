@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import { ClipboardList } from "lucide-react"
 import { Card, CardContent } from '../../../components/ui/card'
 import { Badge } from '../../../components/ui/badge'
@@ -12,6 +11,8 @@ import { apiFetch } from "../../../lib/api"
 import { formatPriceVND } from "../../../hooks/format-price"
 import { API_BASE_URL, API_TIMEOUT } from "../../../constants/api"
 import Link from "next/link"
+import { calculateFinalTotal } from "../../../constants/pricing"
+
 type Order = {
   order_id: string
   status: string
@@ -23,51 +24,49 @@ type Order = {
 export default function RestaurantOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loadingId, setLoadingId] = useState<string | null>(null)
-  const router = useRouter()
   const [errorId, setErrorId] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
+  useEffect(() => {
+    let mounted = true
 
-useEffect(() => {
-  let mounted = true
+    const loadRestaurantOrders = async () => {
+      try {
+        const res = await apiFetch("/order/restaurant/orders")
 
-  const loadRestaurantOrders = async () => {
-    try {
-      const res = await apiFetch("/order/restaurant/orders")
+        if (res.status === 401 || res.status === 403) {
+          mounted && setOrders([])
+          return
+        }
 
-      if (res.status === 401 || res.status === 403) {
+        if (!res.ok) {
+          throw new Error("Failed to load restaurant orders")
+        }
+
+        const data = await res.json()
+
+        mounted &&
+          setOrders(
+            data.map((o: any) => ({
+              order_id: o.order_id ?? o.id,
+              status: o.status,
+              total: Math.round(Number(o.total) || 0), // 🔥 IMPORTANT
+              table_number: o.table_number,
+              created_at: o.created_at,
+            }))
+          )
+      } catch (err) {
+        console.error(err)
         mounted && setOrders([])
-        return
       }
-
-      if (!res.ok) {
-        throw new Error("Failed to load restaurant orders")
-      }
-
-      const data = await res.json()
-
-      mounted &&
-        setOrders(
-          data.map((o: any) => ({
-            order_id: o.order_id ?? o.id,
-            status: o.status,
-            total: o.total,
-            table_number: o.table_number,
-            created_at: o.created_at,
-          }))
-        )
-    } catch (err) {
-      console.error(err)
-      mounted && setOrders([])
     }
-  }
 
-  loadRestaurantOrders()
+    loadRestaurantOrders()
 
-  return () => {
-    mounted = false
-  }
-}, [])
+    return () => {
+      mounted = false
+    }
+  }, [])
 
 
   // 🔹 Mark order as DONE
@@ -132,74 +131,72 @@ useEffect(() => {
       />
 
     <div className="max-w-lg mx-auto p-4 space-y-3">
-      {orders.map(order => (
-          <Link
+      {orders.map(order =>  (
+        <Link
+          key={order.order_id}
+          href={`/payment/confirm/${order.order_id}`}
+          className="block"
+        >
+          <Card
             key={order.order_id}
-            href={`/payment/confirm/${order.order_id}`}
-            className="block"
+            className="cursor-pointer hover:bg-muted transition"
           >
-      <Card
-        key={order.order_id}
-        className="cursor-pointer hover:bg-muted transition"
-      >
-        <CardContent className="px-10 relative">
-          {/* Status badge */}
-          <Badge
-            className="absolute right-10"
-            variant={
-              order.status.toLowerCase() === "paid"
-                ? "default"
-                : "secondary"
-            }
-          >
-            {order.status}
-          </Badge>
+            <CardContent className="px-10 relative">
+              {/* Status badge */}
+              <Badge
+                className="absolute right-10"
+                variant={
+                  order.status.toLowerCase() === "paid"
+                    ? "default"
+                    : "secondary"
+                }
+              >
+                {order.status}
+              </Badge>
 
-          {/* Main info */}
-          <div className="flex flex-col text-xs text-gray-500 space-y-1">
-            <p className="text-primary font-semibold text-sm pb-2">
-              Table: {order.table_number ?? "—"}
-            </p>
-            <p>Created: {formatTime(order.created_at)}</p>
-            <p className="text-muted-foreground">
-              Total: {formatPriceVND(order.total)}
-            </p>
-          </div>
-
-          {/* Action */}
-          {order.status !== "Done" && (
-            <div className="mt-4">
-              {order.status.toLowerCase() !== "done" && (
-                <Button
-                  size="sm"
-                  className="mt-4 w-full"
-                  disabled={loadingId === order.order_id}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    markOrderDone(order.order_id)
-                  }}
-                >
-                  {loadingId === order.order_id
-                    ? "Processing..."
-                    : "Mark as Done"}
-                </Button>
-              )}
-
-              {errorId === order.order_id && errorMsg && (
-                <p className="text-xs text-red-500 mt-2">
-                  {errorMsg}
+              {/* Main info */}
+              <div className="flex flex-col text-xs text-gray-500 space-y-1">
+                <p className="text-primary font-semibold text-sm pb-2">
+                  Table: {order.table_number ?? "—"}
                 </p>
-              )}
+                <p>Created: {formatTime(order.created_at)}</p>
+                <p className="text-muted-foreground">
+                  Total: {formatPriceVND(calculateFinalTotal(order.total))}
+                </p>
               </div>
 
-          )}
-        </CardContent>
-      </Card>
-</Link>
+              {/* Action */}
+              {order.status !== "Done" && (
+                <div className="mt-4">
+                  {order.status.toLowerCase() !== "done" && (
+                    <Button
+                      size="sm"
+                      className="mt-4 w-full"
+                      disabled={loadingId === order.order_id}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        markOrderDone(order.order_id)
+                      }}
+                    >
+                      {loadingId === order.order_id
+                        ? "Processing..."
+                        : "Mark as Done"}
+                    </Button>
+                  )}
 
+                  {errorId === order.order_id && errorMsg && (
+                    <p className="text-xs text-red-500 mt-2">
+                      {errorMsg}
+                    </p>
+                  )}
+                  </div>
+
+              )}
+            </CardContent>
+          </Card>
+        </Link>
       ))}
     </div>
-
-    </div>
+  </div>
   )
 }

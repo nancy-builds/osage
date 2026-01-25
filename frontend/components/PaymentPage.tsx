@@ -10,6 +10,8 @@ import { formatPriceVND } from "../hooks/format-price"
 import { API_BASE_URL, API_TIMEOUT } from "../constants/api"
 import ContentState from "../components/layout/ContentState"
 import { AlertDescription, Alert, AlertTitle } from "./ui/alert"
+import { TAX_RATE } from "../constants/tax"
+import { calculateFinalTotal } from "../constants/pricing"
 
 interface PaymentPageProps {
   orderId: string
@@ -35,9 +37,8 @@ const [alertMessage, setAlertMessage] = useState("")
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState<number | null>(null)
   const [order, setOrder] = useState<PaymentPageProps | null>(null)
-  const taxRate = 0.1
-  const tax = total ? total * taxRate : 0
-  const finalTotal = total ? total + tax : 0
+  const tax = total ? total * TAX_RATE : 0
+  const finalTotal = calculateFinalTotal(total ?? 0)
 
   // 🔹 Fetch order total from backend
   useEffect(() => {
@@ -126,7 +127,7 @@ if (paymentMethod === "card") {
               <span className="text-foreground">{formatPriceVND(total)} </span>
             </div>
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground">Tax (10%)</span>
+              <span className="text-muted-foreground">Tax ({TAX_RATE*100}%)</span>
               <span className="text-foreground">{formatPriceVND(tax)} </span>
             </div>
             <div className="flex justify-between font-bold text-base">

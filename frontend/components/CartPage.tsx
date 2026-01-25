@@ -10,6 +10,8 @@ import { formatPriceVND } from '../hooks/format-price'
 import { apiFetch } from "../lib/api"
 import ContentState from "../components/layout/ContentState"
 import { AlertDescription, Alert, AlertTitle } from "./ui/alert"
+import { TAX_RATE } from "../constants/tax"
+import { calculateFinalTotal } from "../constants/pricing"
 
 interface CartPageProps {
   cart: CartItem[]
@@ -22,11 +24,10 @@ interface CartPageProps {
 export default function CartPage({ cart, onUpdateQuantity, onRemoveItem, loading }: CartPageProps) {
   const router = useRouter()
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const tax = total * 0.1
   const [tableNumber, setTableNumber] = useState<number | null>(null)
-const [showTableAlert, setShowTableAlert] = useState(false)
-
-  const finalTotal = total + tax
+  const [showTableAlert, setShowTableAlert] = useState(false)
+  const tax = total * TAX_RATE
+  const finalTotal = calculateFinalTotal(total)
 
 const onCheckout = async () => {
   if (cart.length === 0) return
@@ -164,7 +165,7 @@ const onCheckout = async () => {
               <span className="text-foreground">{formatPriceVND(total)} </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Tax (10%)</span>
+              <span className="text-muted-foreground">Tax ({TAX_RATE*100}%)</span>
               <span className="text-foreground">{formatPriceVND(tax)} </span>
             </div>
             <div className="flex justify-between text-base font-bold pt-2 border-t border-border">

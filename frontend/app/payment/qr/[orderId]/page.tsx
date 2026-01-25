@@ -9,13 +9,17 @@ import { formatPriceVND } from '../../../../hooks/format-price'
 import { apiFetch } from "../../../../lib/api"
 import { AlertDescription, Alert, AlertTitle } from "../../../../components/ui/alert"
 import ContentState from "../../../../components/layout/ContentState"
+import { calculateFinalTotal } from "../../../../constants/pricing"
 
 export default function QRPaymentPage() {
   const { orderId } = useParams()
   const router = useRouter()
   const [qrData, setQrData] = useState<any>(null)
   const [status, setStatus] = useState<string>("")
-const [showTableAlert, setShowTableAlert] = useState(false)
+  const [showTableAlert, setShowTableAlert] = useState(false)
+  const total = Number(qrData?.amount ?? 0)
+  const finalTotal = calculateFinalTotal(total)
+
 
   useEffect(() => {
     if (!orderId) return
@@ -65,13 +69,17 @@ const [showTableAlert, setShowTableAlert] = useState(false)
         </div>
         <div className="p-6 flex flex-col items-center">
           <div className="p-3 border border-gray-300 rounded-xl mb-4">
-            <QRCode value={qrData.qr_string} size={180} />
+            <img
+              src="/ratings/qr.png"
+              alt="restaurant QR"
+              className="h-60 object-contain"
+            />
           </div>
 
         <div className="text-sm text-left space-y-1">
           <p><b>Account:</b> {qrData.bank.account_number}</p>
           <p><b>Name:</b> {qrData.bank.account_name}</p>
-          <p><b>Amount:</b> {formatPriceVND(qrData.amount)}</p>
+          <p><b>Amount:</b> {formatPriceVND(finalTotal)}</p>
           <p className="text-primary">
             <b>Transfer content:</b> {qrData.transfer_content}
           </p>
