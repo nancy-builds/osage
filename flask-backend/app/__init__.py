@@ -3,6 +3,7 @@ from flask import Flask
 from .config import Config
 from .extensions import db, migrate, bcrypt, socketio, login_manager
 from flask_cors import CORS
+from flask_migrate import upgrade
 
 
 def create_app():
@@ -19,7 +20,6 @@ def create_app():
         allow_headers=["Content-Type", "Authorization"]
     )
 
-
     app.config.from_object(Config)
 
     db.init_app(app)
@@ -34,23 +34,21 @@ def create_app():
         ]
     )
 
-    
     login_manager.init_app(app)
 
     with app.app_context():
-        if os.getenv("SEED_ON_STARTUP") == "false":
-            print("🔥 SEED_ON_STARTUP = TRUE")
+        # ✅ ALWAYS apply migrations
+        print("⬆️ Running database migrations")
+        upgrade()
 
-            from flask_migrate import upgrade
-            upgrade()
+        # 🌱 Seed only if explicitly enabled
+        if os.getenv("SEED_ON_STARTUP") == "true":
+            print("🌱 Seeding enabled")
 
             from seeds.seed_menu import seed_menu
             from seeds.seed_reward import seed_rewards
 
-            print("🌱 Running seed_menu()")
             seed_menu()
-
-            print("🌱 Running seed_rewards()")
             seed_rewards()
 
             print("✅ Seeding finished")
