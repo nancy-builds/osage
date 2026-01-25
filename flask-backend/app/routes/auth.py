@@ -131,7 +131,7 @@ def profile():
         "avatar_url": user.avatar_url,
         "membership_level": user.membership_level,
         "loyalty_points": user.loyalty_points,
-        
+        "created_at": user.created_at,
         "rewards": [
             {
                 "id": str(reward.id),
@@ -141,8 +141,6 @@ def profile():
             }
             for reward in user.rewards
         ],
-
-        "created_at": user.created_at,
 
     }), 200
 
@@ -182,6 +180,7 @@ def update_profile():
             "fullName": current_user.full_name,
             "email": current_user.email,
             "phone": current_user.phone,
+            "created_at": current_user.created_at,
             "dateOfBirth": current_user.date_of_birth.isoformat() if current_user.date_of_birth else None,
         }
     }), 200

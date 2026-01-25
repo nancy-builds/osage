@@ -12,7 +12,7 @@ export interface ProfileHeaderProps {
   phone?: string
   membership_level?:  "basic" | "silver" | "gold" | "vip" 
   loyalty_points?: number
-  created_at?: string
+  created_at: string
   role?: string
 }
 
@@ -49,7 +49,7 @@ export function ProfileHeader({ full_name, phone, avatar_url, membership_level, 
             {/* Phone */}
             <div className="text-xs mt-3 tracking-wide text-muted-foreground">
               <p>Phone: {phone}</p>
-              <p>Member since: {formatTime(created_at)}</p>
+              <p>Member since: {created_at}</p>
             </div>
             
             {/* Meta info */}
