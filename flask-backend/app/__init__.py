@@ -1,3 +1,10 @@
+import os
+from flask import Flask
+from .config import Config
+from .extensions import db, migrate, bcrypt, socketio, login_manager
+from flask_cors import CORS
+from flask_migrate import upgrade
+
 def create_app():
     app = Flask(__name__)
 
