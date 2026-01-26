@@ -87,7 +87,7 @@ useEffect(() => {
     <div className="pb-24 max-w-lg mx-auto">
       
       <div className="flex items-center gap-4 my-3 mx-9">
-        <img src="/ratings/bow.png" alt="Osage" className="h-9 w-auto"/>
+        <img src="/logo-no-background.png" alt="Osage" className="h-9 w-auto"/>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input type="text" placeholder="Search menu, drinks..."
