@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import Footer from "../components/Footer"
 import Navigation from "../components/Navigation"
 import type { CartItem, MenuItem } from "../types"
-import { ReactNode, useState, createContext } from "react"
+import { ReactNode, useState, createContext, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { SettingsProvider } from "./providers/SettingsProvider"
 
@@ -25,16 +25,21 @@ export const CartContext = createContext<CartContextType | null>(null)
 
 export default function RootLayout({ children }: RootLayoutProps) {
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
-
-  const [currentPage, setCurrentPage] =
-    useState<"menu" | "cart" | "feedback" | "account">("menu")
 
   const [cart, setCart] = useState<CartItem[]>([])
 
-  const handleNavigate = (page: typeof currentPage) => {
-    setCurrentPage(page)
-  }
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem("cart")
+    if (savedCart) {
+      setCart(JSON.parse(savedCart))
+    }
+  }, [])
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart))
+  }, [cart])
 
   const addToCart = (item: MenuItem) => {
     setCart(prev => {
@@ -72,7 +77,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
         />
         <link rel="icon" href="/logo.png" />
         <script src="https://cdn.lordicon.com/lordicon.js"></script>
-
       </head>
 
       <body className="font-body antialiased bg-background">
@@ -90,17 +94,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
           {children}
 
           <Navigation
-            currentPage={currentPage}
-            onNavigate={handleNavigate}
             cartItemCount={cart.reduce(
               (sum, item) => sum + item.quantity,
               0
             )}
           />
-
           <Footer />
         </CartContext.Provider>
-
         <Analytics />
         </SettingsProvider>
       </body>

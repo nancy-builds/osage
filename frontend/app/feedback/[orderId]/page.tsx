@@ -108,7 +108,6 @@ const [isLoggedIn, setIsLoggedIn] = useState(false)
         onSubmit={submitFeedback}
         onBack={() => router.push("/menu")}
         isLoggedIn={isLoggedIn}   // 👈 add this
-
     />
 </>
 

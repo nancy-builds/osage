@@ -25,7 +25,6 @@ export default function Navigation({ cartItemCount }: NavigationProps) {
 
   const userRole = user?.role?.toUpperCase() ?? "GUEST"
 
-
   const customerNavItems: NavItem[] = [
     { id: "menu", label: "Menu", icon: Menu, route: "/menu" },
     {

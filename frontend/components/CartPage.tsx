@@ -18,63 +18,30 @@ interface CartPageProps {
   onUpdateQuantity: (itemId: string, quantity: number) => void
   onRemoveItem: (itemId: string) => void
   loading: boolean
-  table_number: number
+tableNumber: number | null
+  onCheckout: () => void
+  setTableNumber: (v: number) => void
+  showTableAlert: boolean
+  setShowTableAlert: (v: boolean) => void
 }
 
-export default function CartPage({ cart, onUpdateQuantity, onRemoveItem, loading }: CartPageProps) {
-  const router = useRouter()
+export default function CartPage({ 
+  cart, 
+  onUpdateQuantity, 
+  onRemoveItem, 
+  loading, 
+  onCheckout,
+  tableNumber,
+  setTableNumber,
+  showTableAlert, 
+  setShowTableAlert
+}: CartPageProps) {
+
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const [tableNumber, setTableNumber] = useState<number | null>(null)
-  const [showTableAlert, setShowTableAlert] = useState(false)
   const tax = total * TAX_RATE
   const finalTotal = calculateFinalTotal(total)
 
-const onCheckout = async () => {
-  if (cart.length === 0) return
-
-  if (!tableNumber) {
-    setShowTableAlert(true)
-    return
-  }
-
-  try {
-    const res = await apiFetch("/order", {
-      method: "POST",
-      body: JSON.stringify({
-        table_number: tableNumber,
-        items: cart.map(item => ({
-          product_id: item.id,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-      }),
-    })
-
-    if (res.status === 401) {
-      alert("Please log in to place an order")
-      return
-    }
-
-    let data: any = null
-    try {
-      data = await res.json()
-    } catch {
-      // ignore empty body
-    }
-
-    if (!res.ok) {
-      console.error("Order error:", data)
-      alert(data?.error || "Failed to create order")
-      return
-    }
-
-    router.push(`/payment/${data.order_id}`)
-  } catch (err) {
-    console.error("Checkout error:", err)
-    alert("Network error. Please try again.")
-  }
-}
-
+  
   return (
     <div className="pb-24 max-w-lg mx-auto">
       {/* Header */}

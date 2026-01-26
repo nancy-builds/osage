@@ -123,6 +123,23 @@ export default function RestaurantOrdersPage() {
     )
   }
 
+  const activeOrders = orders.filter(
+  (order) => order.status !== "DONE"
+)
+
+const sortedOrders = activeOrders.sort((a, b) => {
+  if (a.status === "Waiting to Payment" && b.status !== "Waiting to Payment") {
+    return -1
+  }
+  if (a.status !== "Waiting to Payment" && b.status === "Waiting to Payment") {
+    return 1
+  }
+
+  // fallback: newest first
+  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+})
+
+
   return (
     <div className="pb-28 max-w-lg mx-auto min-h-screen">
       <PageHeader
@@ -131,7 +148,7 @@ export default function RestaurantOrdersPage() {
       />
 
     <div className="max-w-lg mx-auto p-4 space-y-3">
-      {orders.map(order =>  (
+      {sortedOrders.map(order =>  (
         <Link
           key={order.order_id}
           href={`/payment/confirm/${order.order_id}`}

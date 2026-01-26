@@ -7,6 +7,7 @@ import { PageHeader } from "../components/layout/PageHeader"
 import ContentState from "./layout/ContentState"
 import { AlertDescription, Alert, AlertTitle } from "../components/ui/alert"
 import Link from "next/link"
+
 interface FeedbackPageProps {
   orderId: string
   onBack: () => void
@@ -36,11 +37,11 @@ export default function FeedbackPage({
   const [rating, setRating] = useState(0)
   const [hoveredRating, setHoveredRating] = useState(0)
   const [comment, setComment] = useState("")
-const [showAlert, setShowAlert] = useState(false);
-const [alertData, setAlertData] = useState<{
-  title: string
-  description: string
-} | null>(null)
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertData, setAlertData] = useState<{
+    title: string
+    description: string
+  } | null>(null)
 
 
   const ratingMeta = [
@@ -70,6 +71,14 @@ const handleSubmit = async () => {
       title: "Please continue after",
       description: "Log in to send your feedback and earn reward points.",
       action: "login", // 👈 semantic, clean
+    })
+    return
+  }
+    
+  if (!orderPaid) {
+    setAlertData({
+      title: "Payment required",
+      description: "You need to complete the payment before leaving feedback",
     })
     return
   }
@@ -127,8 +136,8 @@ const handleSubmit = async () => {
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Share your thoughts about the food, service, or atmosphere..."
-              className="w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              rows={4}
+              className="w-full text-sm px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              rows={3}
             />
           </div>
 
