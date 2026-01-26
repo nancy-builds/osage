@@ -15,3 +15,5 @@ class Config:
     # Flask-Login
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_SAMESITE = "None"
+    REMEMBER_COOKIE_SECURE = True
+

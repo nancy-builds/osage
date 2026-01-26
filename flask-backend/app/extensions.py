@@ -9,7 +9,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 bcrypt = Bcrypt()
-socketio = SocketIO(cors_allowed_origins="*")
+socketio = SocketIO()
 
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"

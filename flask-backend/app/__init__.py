@@ -24,7 +24,14 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
-    socketio.init_app(app, cors_allowed_origins="*")
+    socketio.init_app(
+        app,
+        cors_allowed_origins=[
+            "http://localhost:3000",
+            "https://osage-k7he.vercel.app"
+        ],
+        cookie=True
+    )
     login_manager.init_app(app)
 
     # 🌱 Seed only if explicitly enabled (optional)
