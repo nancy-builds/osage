@@ -10,21 +10,21 @@ import { useAuth } from "../hooks/use-auth"
 
 export default function LoginForm() {
   const router = useRouter()
+
   const [form, setForm] = useState({
     phone: "",
     password: "",
   })
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const searchParams = useSearchParams()
-const redirect = searchParams.get("redirect") || "/feedback"
-const { refreshUser } = useAuth()
-
+  const redirect = searchParams.get("redirect") || "/feedback"
+  const { refreshUser } = useAuth()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
-
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault()
   setLoading(true)
@@ -35,20 +35,24 @@ const handleSubmit = async (e: React.FormEvent) => {
       method: "POST",
       body: JSON.stringify(form),
     })
+
     let data: any = null
     try {
       data = await res.json()
-    } catch {
-      // ignore empty body
-    }
+    } catch {}
 
     if (!res.ok) {
-      await refreshUser() // 🔥 THIS IS THE FIX
-      router.push(redirect ?? "/")
+      setError(data?.message || "Login failed")
+      return
     }
 
-    alert("Login successful!")
-    router.push(redirect)
+    // ✅ SUCCESS PATH ONLY
+    await refreshUser() // 🔥 MUST happen here
+
+    // 🔥 SAFEST for Safari
+    window.location.href = redirect || "/feedback"
+    // ⬆️ replaces router.push
+
   } catch (err: any) {
     setError(err.message || "Network error. Please try again.")
   } finally {
