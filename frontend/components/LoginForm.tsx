@@ -6,6 +6,7 @@ import { apiFetch } from "../lib/api"
 import { Button } from "../components/ui/button"
 import { CircleAlert } from "lucide-react"
 import { useSearchParams } from "next/navigation"
+import { useAuth } from "../hooks/use-auth"
 
 export default function LoginForm() {
   const router = useRouter()
@@ -17,6 +18,7 @@ export default function LoginForm() {
   const [error, setError] = useState("")
   const searchParams = useSearchParams()
 const redirect = searchParams.get("redirect") || "/feedback"
+const { refreshUser } = useAuth()
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +43,8 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
 
     if (!res.ok) {
-      throw new Error(data?.message || "Login failed")
+      await refreshUser() // 🔥 THIS IS THE FIX
+      router.push(redirect ?? "/")
     }
 
     alert("Login successful!")

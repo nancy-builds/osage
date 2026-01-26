@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react"
-import { API_BASE_URL, API_TIMEOUT } from "../constants/api"
+import { useEffect, useState, useCallback } from "react"
+import { API_BASE_URL } from "../constants/api"
 
 type User = {
   id: string
-  email: string
   role: "RESTAURANT" | "CUSTOMER"
 }
 
@@ -11,14 +10,32 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/api/auth/profile`, {
-      credentials: "include",
-    })
-      .then(res => res.ok ? res.json() : null)
-      .then(data => setUser(data))
-      .finally(() => setLoading(false))
+  const fetchProfile = useCallback(async () => {
+    try {
+      setLoading(true)
+      const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+        credentials: "include",
+      })
+
+      if (!res.ok) {
+        setUser(null)
+        return
+      }
+
+      const data = await res.json()
+      setUser(data)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
-  return { user, loading }
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
+
+  return {
+    user,
+    loading,
+    refreshUser: fetchProfile, // 🔥 KEY
+  }
 }

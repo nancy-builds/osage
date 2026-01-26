@@ -24,54 +24,58 @@ export default function AccountPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
-const handleLogout = async () => {
-  try {
-    await fetch(`${API_BASE_URL}/api/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
 
-    setProfile(null);      // ✅ clear user state immediately
-    router.push("/login"); // ✅ redirect
-  } catch (err) {
-    console.error("Logout failed", err);
-  }
-};
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
 
-  useEffect(() => {
-    let mounted = true
+      setProfile(null);      // ✅ clear user state immediately
+      router.push("/login"); // ✅ redirect
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+  };
 
-    const loadProfile = async () => {
-      try {
-        mounted && setIsLoading(true) // ✅ start loading
+useEffect(() => {
+  let mounted = true
+  let retried = false
 
-        const res = await apiFetch("/auth/profile")
+  const loadProfile = async () => {
+    try {
+      mounted && setIsLoading(true)
 
-        if (res.status === 401) {
-          mounted && setProfile(null)
-          return
-        }
+      const res = await apiFetch("/auth/profile")
 
-        if (!res.ok) {
-          throw new Error(`Failed to load profile (${res.status})`)
-        }
-
-        const data = await res.json()
-        mounted && setProfile(data)
-      } catch (err) {
-        console.error(err)
-        mounted && setProfile(null)
-      } finally {
-        mounted && setIsLoading(false) // ✅ always stop loading
+      if (res.status === 401 && !retried) {
+        retried = true
+        // ⏳ Safari needs a moment for cookies
+        setTimeout(loadProfile, 300)
+        return
       }
-    }
 
-    loadProfile()
+      if (!res.ok) {
+        throw new Error(`Failed to load profile (${res.status})`)
+      }
 
-    return () => {
-      mounted = false
+      const data = await res.json()
+      mounted && setProfile(data)
+    } catch (err) {
+      console.error(err)
+      mounted && setProfile(null)
+    } finally {
+      mounted && setIsLoading(false)
     }
-  }, [])
+  }
+
+  loadProfile()
+
+  return () => {
+    mounted = false
+  }
+}, [])
 
 if (!profile) {
   return( 
@@ -79,7 +83,7 @@ if (!profile) {
     <div className="bg-background border-b border-border">
       <div className="px-6 py-8">
         <div className="flex items-start gap-6">
-          <Avatar className="h-24 w-24 rounded-full overflow-hidden ring-2 ring-gray-300 ring-offset-2 ring-offset-background">
+          <Avatar className="h-24 w-24 rounded-full overflow-hidden">
             <AvatarFallback className="h-full w-full flex items-center justify-center bg-muted">
               <Image className="h-10 w-10 text-muted-foreground opacity-50" />
             </AvatarFallback>
@@ -87,7 +91,7 @@ if (!profile) {
         </div>
       </div>
     </div>
-      <ContentState isLoading/>
+      <ContentState isEmpty emptyText="Not signed in" emptyDescription="Sign in to view your profile, orders, and account detail"/>
     </div>
   )
 }
@@ -148,11 +152,11 @@ return (
           {/* Logout */}
           <div className="bg-card border border-border rounded-lg m-6">
             <MenuItem
-  icon={<LogOut size={20} />}
-  label="Log Out"
-  variant="destructive"
-  onClick={handleLogout}
-/>
+              icon={<LogOut size={20} />}
+              label="Log Out"
+              variant="destructive"
+              onClick={handleLogout}
+            />
           </div>
         </div>
         
