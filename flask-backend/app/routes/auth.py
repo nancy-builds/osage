@@ -34,7 +34,14 @@ def load_user(user_id):
 #         return jsonify({"error": str(e)}), 500
 
 
-
+@auth.route("/api/debug/session")
+def debug_session():
+    return {
+        "cookies": request.cookies,
+        "session": dict(session),
+        "logged_in": current_user.is_authenticated
+    }
+    
 @auth_bp.post("/register")
 def register():
     try:
