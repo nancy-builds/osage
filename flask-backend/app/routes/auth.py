@@ -9,6 +9,7 @@ from ..constants.roles import Roles
 from ..utils.permissions import role_required
 from seeds.seed_menu import seed_menu
 from seeds.seed_reward import seed_rewards
+from flask import session
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -107,6 +108,9 @@ def login():
         }), 401
 
     login_user(user, remember=True)
+
+    session.permanent = True
+    session.modified = True
 
     return jsonify({
         "message": "Login successful",
