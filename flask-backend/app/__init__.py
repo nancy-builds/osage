@@ -12,7 +12,7 @@ def create_app():
         app,
         origins=[
             "http://localhost:3000",
-            "https://osage-k7he.vercel.app"
+            "https://osage-builds.onrender.com"
         ],
         supports_credentials=True,
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -28,7 +28,7 @@ def create_app():
         app,
         cors_allowed_origins=[
             "http://localhost:3000",
-            "https://osage-k7he.vercel.app"
+            "https://osage-builds.onrender.com"
         ],
         cookie=True
     )
