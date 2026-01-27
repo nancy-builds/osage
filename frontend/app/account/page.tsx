@@ -8,7 +8,7 @@ import { apiFetch } from "../../lib/api"
 import ContentState from "../../components/layout/ContentState"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import { useRouter } from "next/navigation"
-import { API_BASE_URL } from "@/constants/api"
+import { API_BASE_URL } from "../../constants/api"
 
 type Profile = {
   full_name: string
