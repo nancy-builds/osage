@@ -32,6 +32,8 @@ export default function RewardsPage() {
   const [rewards, setRewards] = useState<Reward[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const isLoggedIn = Boolean(profile)
+
 
   // get data from profile and reward
   useEffect(() => {
@@ -84,20 +86,6 @@ export default function RewardsPage() {
       </div>
     )
   }
-
-  if (!profile) {
-    return (
-        <div className="pb-28 max-w-lg mx-auto min-h-screen">
-          {/* Header */}
-      
-          <PageHeader
-            title="Redeem Rewards"
-            description="Choose a reward below and enjoy the perks you’ve earned."
-          />
-          <ContentState isEmpty emptyText="No rewards found" emptyDescription="No rewards available right now"/>
-        </div>
-    )
-  }
   
   if (loading) {
     return (
@@ -105,11 +93,13 @@ export default function RewardsPage() {
     )
   }
 
-
+  const progressPointsLimit = 500
   const progressPercent = Math.min(
-    (profile.loyalty_points ?? 0 / 500) * 100,
+    (profile?.loyalty_points ?? 0 / progressPointsLimit) * 100,
     100
   )
+  const safeProgress = isLoggedIn ? progressPercent : 0
+
 
   const handleRedeem = async (rewardId: string) => {
     try {
@@ -158,14 +148,14 @@ export default function RewardsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Your Points</p>
                 <p className="text-3xl font-bold text-primary">
-                  {profile.loyalty_points}
+                  {profile?.loyalty_points ?? "N/A"}
                 </p>
               </div>
 
               <div className="text-right">
                 <p className="text-sm text-muted-foreground pb-1">Membership</p>
                 <Badge variant="default">
-                  {profile.membership_level}
+                  {profile?.membership_level ?? "N/A"}
                 </Badge>
               </div>
             </div>
@@ -174,13 +164,13 @@ export default function RewardsPage() {
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span>Membership Progress</span>
-                <span>500 pts</span>
+                <span>{progressPointsLimit} pts</span>
               </div>
               <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary"
                   style={{
-                    width: `${progressPercent}%` 
+                    width: `${safeProgress}%` 
                   }}
                 />
               </div>
@@ -239,10 +229,11 @@ export default function RewardsPage() {
                     <div>
                     <Button
                       onClick={() => handleRedeem(reward.id)}
-                      disabled={
-                        profile.loyalty_points < reward.required_points ||
-                        (reward.expires_at && new Date(reward.expires_at) < new Date())
-                      }
+  disabled={
+    !isLoggedIn ||
+    profile!.loyalty_points < reward.required_points ||
+    (reward.expires_at && new Date(reward.expires_at) < new Date())
+  }
                       className="w-full mt-6 py-5"
 
                     >
@@ -250,16 +241,20 @@ export default function RewardsPage() {
                     </Button>
 
                     {/* Error message */}
-                    {reward.expires_at && new Date(reward.expires_at) < new Date() ? (
-                      <p className="text-xs text-amber-500 mt-1">
-                        This reward has expired
-                      </p>
-                    ) : profile.loyalty_points < reward.required_points ? (
-                      <p className="text-xs text-amber-500 mt-1">
-                        You don’t have enough loyalty points
-                      </p>
+{!isLoggedIn ? (
+  <p className="text-xs text-amber-400 mt-1">
+    Please log in to redeem rewards
+  </p>
+) : reward.expires_at && new Date(reward.expires_at) < new Date() ? (
+  <p className="text-xs text-amber-500 mt-1">
+    This reward has expired
+  </p>
+) : profile!.loyalty_points < reward.required_points ? (
+  <p className="text-xs text-amber-500 mt-1">
+    You don’t have enough loyalty points
+  </p>
+) : null}
 
-                    ) : null}
                       </div>
                     </div>
                   </div>

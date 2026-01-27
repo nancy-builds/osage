@@ -5,7 +5,6 @@ import { User, Settings, History, Loader2 , ClipboardList, Gift, LogOut, Image }
 import { useEffect, useState } from "react"
 import { formatTime } from '../../hooks/format-time'
 import { apiFetch } from "../../lib/api"
-import ContentState from "../../components/layout/ContentState"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import { useRouter } from "next/navigation"
 import { API_BASE_URL } from "../../constants/api"
@@ -43,32 +42,39 @@ useEffect(() => {
   let mounted = true
   let retried = false
 
-  const loadProfile = async () => {
-    try {
-      mounted && setIsLoading(true)
+const loadProfile = async () => {
+  try {
+    mounted && setIsLoading(true)
 
-      const res = await apiFetch("/auth/profile")
+    const res = await apiFetch("/auth/profile")
 
-      if (res.status === 401 && !retried) {
-        retried = true
-        // ⏳ Safari needs a moment for cookies
-        setTimeout(loadProfile, 300)
-        return
-      }
-
-      if (!res.ok) {
-        throw new Error(`Failed to load profile (${res.status})`)
-      }
-
-      const data = await res.json()
-      mounted && setProfile(data)
-    } catch (err) {
-      console.error(err)
-      mounted && setProfile(null)
-    } finally {
-      mounted && setIsLoading(false)
+    // ⏳ Safari cookie race – retry ONCE
+    if (res.status === 401 && !retried) {
+      retried = true
+      setTimeout(loadProfile, 300)
+      return
     }
+
+    // 🔐 Logged out state (expected)
+    if (res.status === 401) {
+      mounted && setProfile(null)
+      return
+    }
+
+    // ❌ Real error
+    if (!res.ok) {
+      throw new Error(`Failed to load profile (${res.status})`)
+    }
+
+    const data = await res.json()
+    mounted && setProfile(data)
+  } catch (err) {
+    console.error("Load profile error:", err)
+    mounted && setProfile(null)
+  } finally {
+    mounted && setIsLoading(false)
   }
+}
 
   loadProfile()
 

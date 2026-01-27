@@ -190,4 +190,11 @@ def update_profile():
 @login_required
 def logout():
     logout_user()
-    return jsonify({"message": "Logged out successfully"}), 200
+    response = jsonify({"message": "Logged out successfully"})
+
+    # Explicitly clear session cookie
+    response.delete_cookie("session")
+
+    # If you ever used remember=True
+    response.delete_cookie("remember_token")
+    return response, 200
