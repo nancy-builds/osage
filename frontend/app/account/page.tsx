@@ -77,39 +77,36 @@ useEffect(() => {
   }
 }, [])
 
-if (!profile) {
-  return( 
-    <div>
-    <div className="bg-background border-b border-border">
-      <div className="px-6 py-8">
-        <div className="flex items-start gap-6">
-          <Avatar className="h-24 w-24 rounded-full overflow-hidden">
-            <AvatarFallback className="h-full w-full flex items-center justify-center bg-muted">
-              <Image className="h-10 w-10 text-muted-foreground opacity-50" />
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      </div>
-    </div>
-      <ContentState isEmpty emptyText="Not signed in" emptyDescription="Sign in to view your profile, orders, and account detail"/>
-    </div>
-  )
-}
+
+
 
 
 return (
     <main className="min-h-screen bg-background">
 
-        <ProfileHeader
-          full_name={profile.full_name}
-          phone={profile.phone}
-          avatar_url={profile.avatar_url}
-          membership_level={profile.membership_level}
-          loyalty_points={profile.loyalty_points}
-          created_at={formatTime(profile.created_at)}
-
-          role={profile.role}
-        />
+            {profile ? (
+      <ProfileHeader
+        full_name={profile.full_name}
+        phone={profile.phone}
+        avatar_url={profile.avatar_url}
+        membership_level={profile.membership_level}
+        loyalty_points={profile.loyalty_points}
+        created_at={formatTime(profile.created_at)}
+        role={profile.role}
+      />
+    ) : (
+      <div className="bg-background border-b border-border">
+        <div className="px-6 py-8">
+          <div className="flex items-start gap-6">
+            <Avatar className="h-24 w-24 rounded-full overflow-hidden">
+              <AvatarFallback className="h-full w-full flex items-center justify-center bg-muted">
+                <Image className="h-10 w-10 text-muted-foreground opacity-50" />
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+      </div>
+    )}
         <div className="mx-auto">
           {/* Common section */}
           <div className="bg-card border border-border rounded-lg m-6">
@@ -126,7 +123,7 @@ return (
           </div>
 
           {/* Role-based section */}
-          {profile.role === "restaurant" ? (
+          {profile?.role === "restaurant" ? (
             <div className="bg-card border border-border rounded-lg m-6">
               <MenuItem
                 icon={<ClipboardList size={20} />}
